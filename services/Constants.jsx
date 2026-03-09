@@ -19,14 +19,14 @@ export const SideBarRecruiter = [
     path: "/recruiter/dashboard",
   },
   {
-    name: "Scheduled Interview",
+    name: "Scheduled Interviews",
     icon: Calendar,
-    path: "/recruiter/scheduled-interview",
+    path: "/recruiter/scheduled-interviews",
   },
   {
-    name: "All Interview",
+    name: "All Interviews",
     icon: List,
-    path: "/recruiter/all-interview",
+    path: "/recruiter/all-interviews",
   },
   {
     name: "Profile",
