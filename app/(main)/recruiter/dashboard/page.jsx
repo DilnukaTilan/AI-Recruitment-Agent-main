@@ -2,8 +2,9 @@
 
 import React from "react";
 import CreditsDisplay from "./_components/CreditsDisplay";
+import CreateOptions from "./_components/CreateOptions";
 
-function Dashboard() {
+function DashboardRecruiter() {
   return (
     <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
       <div className="flex flex-col gap-1 border-b pb-6">
@@ -17,9 +18,10 @@ function Dashboard() {
 
       <div className="space-y-8">
         <CreditsDisplay />
+        <CreateOptions />
       </div>
     </div>
   );
 }
 
-export default Dashboard;
+export default DashboardRecruiter;
