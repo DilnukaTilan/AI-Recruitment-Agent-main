@@ -85,7 +85,7 @@ function CreateOptions() {
             ) : (
               <>
                 Start Interview
-                <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
               </>
             )}
           </Button>

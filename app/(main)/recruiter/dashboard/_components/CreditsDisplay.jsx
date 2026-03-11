@@ -19,7 +19,7 @@ function CreditsDisplay() {
 
   return (
     <div className="mb-8">
-      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-white via-slate-50 to-blue-50/70 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
+      <div className="relative overflow-hidden bg-white rounded-2xl border border-slate-200 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
         <div className="relative p-6 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-5">
