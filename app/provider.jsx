@@ -74,7 +74,9 @@ function Provider({ children }) {
   }, []);
 
   return (
-    <UserDetailContext.Provider value={{ user, setUser, updateUserCredits }}>
+    <UserDetailContext.Provider
+      value={{ user, setUser, updateUserCredits, fetchAndSetUser }}
+    >
       <div>{children}</div>
     </UserDetailContext.Provider>
   );

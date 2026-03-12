@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Zap,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -63,34 +62,39 @@ const CREDIT_PACKAGES = [
 export default function Billing() {
   const [selectedPackage, setSelectedPackage] = useState(CREDIT_PACKAGES[1]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { user, updateUserCredits } = useUser();
+  const { user } = useUser();
 
   const handlePurchase = async () => {
+    if (!user?.email) {
+      toast.error("You must be logged in to purchase credits.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const currentCredits = user?.credits || 0;
-      const newCredits = currentCredits + selectedPackage.credits;
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageId: selectedPackage.id,
+          packageName: selectedPackage.name,
+          credits: selectedPackage.credits,
+          price: selectedPackage.price,
+          userEmail: user.email,
+        }),
+      });
 
-      const result = await updateUserCredits(newCredits);
+      const data = await response.json();
 
-      if (result.success) {
-        toast.success(
-          `Successfully purchased ${selectedPackage.credits} credits! You now have ${newCredits} credits.`,
-        );
-
-        setTimeout(() => {
-          router.push("/recruiter/dashboard");
-        }, 2000);
-      } else {
-        toast.error("Failed to update credits. Please try again.");
-        console.error("Credit update error:", result.error);
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
       }
+
+      window.location.href = data.url;
     } catch (error) {
-      toast.error("Purchase failed. Please try again.");
-      console.error("Purchase error:", error);
-    } finally {
+      toast.error("Could not start checkout. Please try again.");
+      console.error("Stripe checkout error:", error);
       setLoading(false);
     }
   };
@@ -131,6 +135,7 @@ export default function Billing() {
                   </div>
                 </div>
               </div>
+
               <div className="flex items-center gap-1.5 rounded-full bg-white/80 border border-blue-200 px-3 py-1.5 shadow-sm">
                 <Zap className="h-3.5 w-3.5 shrink-0 text-blue-600" />
                 <span className="text-xs font-semibold text-blue-700 whitespace-nowrap">
@@ -256,15 +261,14 @@ export default function Billing() {
             ) : (
               <span className="relative flex items-center justify-center gap-2">
                 <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
-                Purchase {selectedPackage.credits} Credits - $
-                {selectedPackage.price}
+                Pay ${selectedPackage.price} - {selectedPackage.credits} Credits
                 <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
               </span>
             )}
           </Button>
 
           <p className="text-xs text-gray-400 text-center mt-3">
-            Credits are valid for 12 months from purchase date
+            Powered by Stripe · Secure payment · Credits valid for 12 months
           </p>
         </div>
       </div>
