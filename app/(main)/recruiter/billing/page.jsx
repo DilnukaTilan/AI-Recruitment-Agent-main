@@ -168,7 +168,7 @@ export default function Billing() {
 
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg font-bold text-cyan-500">
                     {pkg.name}
                   </h3>
                   <p className="text-sm text-gray-500 mt-0.5">
