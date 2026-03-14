@@ -6,6 +6,7 @@ const nextConfig = {
       "lh3.googleusercontent.com",
       "cdn-icons-png.flaticon.com",
       "oqaqnjpovruuqpuohjbp.supabase.co",
+      "kmvrviycfjyitjfnukdv.supabase.co",
     ],
   },
 };
