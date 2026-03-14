@@ -113,10 +113,10 @@ export default function Billing() {
       </div>
 
       {user && (
-        <div className="flex justify-center">
-          <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-linear-to-br from-blue-50 to-indigo-50 shadow-md w-full max-w-md">
+        <div className="flex justify-center w-full">
+          <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-linear-to-br from-blue-50 to-indigo-50 shadow-md w-full max-w-md mx-auto">
             <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-blue-500 to-indigo-500" />
-            <div className="px-6 py-5 flex items-center justify-between gap-4">
+            <div className="px-4 sm:px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30">
                   <Coins className="h-6 w-6" />
@@ -136,9 +136,9 @@ export default function Billing() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 rounded-full bg-white/80 border border-blue-200 px-3 py-1.5 shadow-sm">
+              <div className="flex items-center justify-center gap-1.5 rounded-full bg-white/80 border border-blue-200 px-3 py-1.5 shadow-sm w-full sm:w-auto flex-1 sm:flex-initial">
                 <Zap className="h-3.5 w-3.5 shrink-0 text-blue-600" />
-                <span className="text-xs font-semibold text-blue-700 whitespace-nowrap">
+                <span className="text-xs font-semibold text-blue-700">
                   1 credit = 1 interview
                 </span>
               </div>
