@@ -58,7 +58,7 @@ export default function BillingSuccess() {
           className="w-full group relative overflow-hidden rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-8 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-indigo-600 hover:to-blue-500 hover:shadow-2xl hover:shadow-indigo-500/40 cursor-pointer"
         >
           Go to Dashboard
-          <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
         </Button>
 
         <p className="text-xs text-gray-400">

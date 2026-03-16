@@ -18,7 +18,6 @@ import {
   CalendarDays,
   BadgeCheck,
   Lock,
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -412,7 +411,7 @@ export default function RecruiterProfile() {
             <Button
               onClick={handleSave}
               disabled={!hasChanges() || saving}
-              className="w-full group relative overflow-hidden rounded-xl bg-linear-to-br from-blue-600 to-indigo-600 px-6 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-indigo-600 hover:to-blue-500 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="w-full group relative overflow-hidden rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-6 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-indigo-600 hover:to-blue-500 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer"
             >
               <span className="relative flex items-center justify-center gap-2">
                 {saving ? (
@@ -422,7 +421,7 @@ export default function RecruiterProfile() {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+                    <Save className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
                     Save Changes
                   </>
                 )}
@@ -506,7 +505,7 @@ export default function RecruiterProfile() {
                 <Button
                   onClick={handlePasswordChange}
                   disabled={!password || password.length < 8 || passwordSaving}
-                  className="w-full group relative overflow-hidden rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 px-6 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-violet-600 hover:to-indigo-500 hover:shadow-xl hover:shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  className="w-full group relative overflow-hidden rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 px-6 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-violet-600 hover:to-indigo-500 hover:shadow-xl hover:shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer"
                 >
                   <span className="relative flex items-center justify-center gap-2">
                     {passwordSaving ? (

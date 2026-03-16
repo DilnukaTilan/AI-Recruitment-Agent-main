@@ -262,7 +262,7 @@ export default function Billing() {
               <span className="relative flex items-center justify-center gap-2">
                 <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
                 Pay ${selectedPackage.price} - {selectedPackage.credits} Credits
-                <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
               </span>
             )}
           </Button>

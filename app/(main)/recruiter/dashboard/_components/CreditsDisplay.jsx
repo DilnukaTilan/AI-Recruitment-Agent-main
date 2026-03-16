@@ -86,7 +86,7 @@ function CreditsDisplay() {
                 <span className="relative flex items-center gap-2">
                   <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
                   Buy Credits
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                 </span>
               </Button>
             </div>
