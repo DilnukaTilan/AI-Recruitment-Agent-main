@@ -231,13 +231,13 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push("/login")}
-              className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2"
+              className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 cursor-pointer"
             >
               Sign in
             </button>
             <button
               onClick={handleStartRecruiting}
-              className="text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors"
+              className="text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
             >
               Get Started
             </button>

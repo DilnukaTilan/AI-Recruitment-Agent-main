@@ -51,7 +51,7 @@ function FormContainer({ onHandleInputChange, GoToNext }) {
       <div>
         <SectionLabel icon={Briefcase} label="Job Position" />
         <Input
-          placeholder="e.g. Senior Software Engineer"
+          placeholder="e.g. Software Engineer"
           className="rounded-xl border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
           onChange={(e) => onHandleInputChange("jobPosition", e.target.value)}
         />
@@ -118,7 +118,7 @@ function FormContainer({ onHandleInputChange, GoToNext }) {
 
       <div className="border-t border-slate-100" />
 
-      <div className="flex justify-end">
+      <div className="flex justify-center sm:justify-end">
         <Button
           onClick={() => GoToNext()}
           size="lg"
