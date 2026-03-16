@@ -7,7 +7,6 @@ import {
   Calendar,
   LayoutDashboard,
   List,
-  Settings,
   WalletCards,
   Video,
 } from "lucide-react";
@@ -38,11 +37,6 @@ export const SideBarRecruiter = [
     icon: WalletCards,
     path: "/recruiter/billing",
   },
-  {
-    name: "Settings",
-    icon: Settings,
-    path: "/recruiter/settings",
-  },
 ];
 
 export const SideBarCandidate = [
@@ -60,11 +54,6 @@ export const SideBarCandidate = [
     name: "Profile",
     icon: User2Icon,
     path: "/candidate/profile",
-  },
-  {
-    name: "Settings",
-    icon: Settings,
-    path: "/candidate/settings",
   },
 ];
 
