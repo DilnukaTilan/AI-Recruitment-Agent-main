@@ -322,7 +322,7 @@ export default function RecruiterProfile() {
                 {profileData.fullname || "Your Name"}
               </h3>
               <Badge className="self-center sm:self-auto bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-50 font-medium text-xs">
-                <BadgeCheck className="h-3 w-3 mr-1" />
+                <BadgeCheck className="h-3 w-3" />
                 Candidate
               </Badge>
             </div>
