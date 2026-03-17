@@ -85,11 +85,11 @@ function CreateInterview() {
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
+          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Create New Interview
           </h2>
         </div>
-        <p className="text-gray-500 dark:text-gray-400 ml-12">
+        <p className="text-gray-500 ml-12">
           Fill in the details below to generate AI-powered interview questions.
         </p>
       </div>

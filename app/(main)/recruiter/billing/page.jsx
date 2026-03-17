@@ -104,10 +104,10 @@ export default function Billing() {
   return (
     <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
       <div className="flex flex-col gap-1 border-b pb-4">
-        <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
+        <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           Billing
         </h2>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-gray-500">
           Purchase interview credits to power your recruitment pipeline.
         </p>
       </div>
@@ -274,7 +274,7 @@ export default function Billing() {
       </div>
 
       <div>
-        <h3 className="text-lg font-bold text-gray-900 mb-5 dark:text-gray-100">
+        <h3 className="text-lg font-bold text-gray-900 mb-5">
           How Credits Work
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
