@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import FormContainer from "./_components/FormContainer";
+import QuestionList from "./_components/QuestionList";
 import { useUser } from "@/app/provider";
 
 const TOTAL_STEPS = 3;
@@ -132,6 +133,13 @@ function CreateInterview() {
             />
           </div>
         </div>
+      )}
+      {step === 2 && (
+        <QuestionList
+          formData={formData}
+          onCreateLink={onCreateLink}
+          loading={loading}
+        />
       )}
     </div>
   );
