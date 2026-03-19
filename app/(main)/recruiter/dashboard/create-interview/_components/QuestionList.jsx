@@ -78,6 +78,7 @@ function QuestionList({ formData, onCreateLink }) {
   const [questionList, setQuestionList] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [regenerateCount, setRegenerateCount] = useState(0);
   const [newQuestion, setNewQuestion] = useState("");
   const [newQuestionType, setNewQuestionType] = useState(
     QUESTION_TYPES[0].value,
@@ -249,6 +250,7 @@ function QuestionList({ formData, onCreateLink }) {
 
   const handleRefreshQuestions = () => {
     GenerateQuestionList();
+    setRegenerateCount((c) => c + 1);
     toast("Regenerating questions…");
   };
 
@@ -421,7 +423,17 @@ function QuestionList({ formData, onCreateLink }) {
                 <Button
                   variant="outline"
                   onClick={handleRefreshQuestions}
-                  className="flex items-center gap-2 rounded-xl border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 cursor-pointer"
+                  disabled={regenerateCount >= 2}
+                  className={`flex items-center gap-2 rounded-xl border-slate-200 transition-all duration-200 ${
+                    regenerateCount >= 2
+                      ? "text-slate-400 cursor-not-allowed opacity-50"
+                      : "text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+                  }`}
+                  title={
+                    regenerateCount >= 2
+                      ? "Regenerate limit reached"
+                      : undefined
+                  }
                 >
                   <RefreshCwIcon className="h-4 w-4" />
                   Regenerate
@@ -587,14 +599,14 @@ function QuestionList({ formData, onCreateLink }) {
           <DialogFooter>
             <Button
               variant="outline"
-              className="rounded-xl"
+              className="rounded-xl cursor-pointer"
               onClick={() => setDeleteDialogOpen(false)}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              className="rounded-xl"
+              className="rounded-xl cursor-pointer"
               onClick={() => handleDeleteQuestion(deletingId)}
             >
               Delete
@@ -648,13 +660,13 @@ function QuestionList({ formData, onCreateLink }) {
           <DialogFooter>
             <Button
               variant="outline"
-              className="rounded-xl"
+              className="rounded-xl cursor-pointer"
               onClick={() => setEditDialogOpen(false)}
             >
               Cancel
             </Button>
             <Button
-              className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-200"
+              className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-200 cursor-pointer"
               onClick={handleSaveEdit}
             >
               Save Changes

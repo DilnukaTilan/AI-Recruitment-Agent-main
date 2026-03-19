@@ -5,7 +5,6 @@ import { supabase } from "@/services/supabaseClient";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
-  MoveRight,
   Sparkles,
   ShieldCheck,
   Clock,
@@ -135,7 +134,6 @@ export default function Login() {
                     className="w-5 h-5"
                   />
                   Continue with Google
-                  <MoveRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
               <div className="px-8 py-4 bg-gray-50/80 border-t border-gray-100 text-center">
