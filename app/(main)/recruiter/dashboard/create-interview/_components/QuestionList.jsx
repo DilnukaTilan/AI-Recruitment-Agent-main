@@ -265,7 +265,7 @@ function QuestionList({ formData, onCreateLink }) {
 
     try {
       const { data: freshUserData, error: fetchError } = await supabase
-        .from("Users")
+        .from("users")
         .select("credits")
         .eq("email", user?.email)
         .single();
@@ -285,7 +285,7 @@ function QuestionList({ formData, onCreateLink }) {
       }
 
       const { error: insertError } = await supabase
-        .from("Interviews")
+        .from("interviews")
         .insert([
           {
             ...formData,
