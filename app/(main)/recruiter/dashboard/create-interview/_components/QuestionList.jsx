@@ -46,6 +46,7 @@ const QUESTION_TYPES = [
   { value: "Location", label: "Location" },
   { value: "Motivation", label: "Motivation" },
   { value: "Salary", label: "Salary" },
+  { value: "Closing", label: "Closing" },
 ];
 
 const TYPE_BADGE_STYLES = {
@@ -58,6 +59,7 @@ const TYPE_BADGE_STYLES = {
   Location: "bg-teal-50 text-teal-700 border border-teal-200",
   Motivation: "bg-pink-50 text-pink-700 border border-pink-200",
   Salary: "bg-lime-50 text-lime-700 border border-lime-200",
+  Closing: "bg-gray-50 text-gray-700 border border-gray-200",
 };
 
 function SectionLabel({ icon: Icon, label }) {

@@ -82,7 +82,7 @@ export const InterviewType = [
 
 export const QUESTIONS_PROMPT = `You are an expert technical interviewer.
 
-Based on the following inputs, generate a well-structured list of high-quality interview questions. Include candidate introduction, salary negotiation, and closing questions alongside role-specific questions.
+Based on the following inputs, generate a well-structured list of high-quality interview questions.
 
 **Inputs:**
 - Job Title: {{jobPosition}}
@@ -90,38 +90,52 @@ Based on the following inputs, generate a well-structured list of high-quality i
 - Interview Duration: {{duration}}
 - Interview Type: {{type}}
 
-**Your Task:**
-1. Analyze the job description to identify key responsibilities, required skills, and expected experience.
-2. Generate a list of interview questions appropriate for the given interview duration.
-3. Adjust the number and depth of questions so they fit within the interview duration.
-4. Ensure the questions match the tone and structure of a real-life {{type}} interview.
-
-**Question Types to Include (as applicable):**
-These question types are mandatory (1 question each):
-- Introduction: Candidate self-introduction covering education background, work experience, and current/previous companies.
+**Question Types Dictionary:**
+- Introduction: Candidate self-introduction.
 - Location: Candidate's home and preferred working location.
-- Motivation: "Why should we hire you?" and similar motivation questions.
-- Salary: Present salary and salary expectations.
-
-Based on the types outlined in Task 4 ({{type}}), include ONLY the matching question types ({{type}}) from the list below. Do not include other types.
+- Motivation: Why should we hire you?
+- Salary: Current salary and expectations.
+- Closing: Final question for candidate comments or questions.
 - Technical: Role-specific technical questions.
 - Behavioral: Situational and behavioral questions.
 - Experience: Questions about past experience relevant to the role.
 - Problem-Solving: Analytical and problem-solving questions.
 - Leadership: Leadership and team management questions.
 
+**Your Tasks:**
+1. Analyze the job description to identify key responsibilities, required skills, and expected experience.
+2. Generate a list of interview questions appropriate for the given interview duration.
+3. Adjust the number and depth of questions so they fit within the interview duration.
+4. Ensure the questions match the tone and structure of a real-life {{type}} interview.
+
+**Rules for Question Selection:**
+Mandatory question types (exactly 1 each):
+- Introduction
+- Location
+- Motivation
+- Salary
+- Closing
+
+Additional question types ({{type}}):
+Include ONLY {{type}} questions. Do not include other types.
+
+If the duration is too short (5 minutes), please remove the Motivation and Salary questions.
+
 **Response Format:**
-Return ONLY a valid JSON object in the following format (no additional text or markdown):
+Return ONLY a valid JSON object.
+Do not include explanations, markdown, or extra text.
+
 {
   "interviewQuestions": [
     {
       "question": "Your question text here",
-      "type": "Introduction | Location | Motivation | Salary | Technical | Behavioral | Experience | Problem-Solving | Leadership"
+      "type": "Introduction | Location | Motivation | Salary | Closing | Technical | Behavioral | Experience | Problem-Solving | Leadership"
     }
   ]
 }
 
-The goal is to create a structured, relevant, and time-optimized interview plan for a {{jobPosition}} role.`;
+The goal is to create a structured, realistic, and time-optimized interview plan for a {{jobPosition}} role.
+`;
 
 export const FEEDBACK_PROMPT = `{{conversation}}
 
