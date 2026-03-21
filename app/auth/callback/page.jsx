@@ -76,7 +76,9 @@ export default function AuthCallback() {
               .eq("email", user.email)
               .single();
             if (fetchAgainError) {
-              toast.error("Failed to retrieve the user profile after a conflict.");
+              toast.error(
+                "Failed to retrieve the user profile after a conflict.",
+              );
               console.error("Re-fetch error:", fetchAgainError);
               setLoading(false);
               return;

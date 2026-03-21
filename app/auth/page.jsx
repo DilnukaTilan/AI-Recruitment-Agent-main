@@ -4,13 +4,7 @@ import React from "react";
 import { supabase } from "@/services/supabaseClient";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import {
-  Sparkles,
-  ShieldCheck,
-  Clock,
-  BarChart2,
-  Zap,
-} from "lucide-react";
+import { Sparkles, ShieldCheck, Clock, BarChart2, Zap } from "lucide-react";
 
 export default function Login() {
   const signInWithGoogle = async () => {

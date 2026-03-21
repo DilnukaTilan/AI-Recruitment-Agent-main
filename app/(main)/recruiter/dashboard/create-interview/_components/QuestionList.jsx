@@ -328,11 +328,15 @@ function QuestionList({
         onCreateLink(interview_id);
       } catch (callbackError) {
         console.error("Error in onCreateLink callback:", callbackError);
-        toast.error("The interview was saved, but we failed to generate the link.");
+        toast.error(
+          "The interview was saved, but we failed to generate the link.",
+        );
       }
     } catch (e) {
       console.error("Error saving interview:", e);
-      toast.error("An error occurred while saving the interview. Please try again.");
+      toast.error(
+        "An error occurred while saving the interview. Please try again.",
+      );
     } finally {
       setSaveLoading(false);
     }
