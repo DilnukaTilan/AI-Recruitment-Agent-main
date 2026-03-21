@@ -90,7 +90,7 @@ export default function RecruiterProfile() {
       setOriginalData(userData);
     } catch (error) {
       console.error("Error loading profile:", error);
-      toast.error("Failed to load profile data");
+      toast.error("Failed to load the profile data.");
     } finally {
       setLoading(false);
     }
@@ -125,11 +125,11 @@ export default function RecruiterProfile() {
     const currentFullname = profileData.fullname;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error("Please select an image file.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
+      toast.error("The image size should be less than 5MB.");
       return;
     }
 
@@ -143,7 +143,7 @@ export default function RecruiterProfile() {
         .upload(fileName, file);
 
       if (error) {
-        toast.error("Failed to upload image");
+        toast.error("Failed to upload the image.");
         console.error("Upload error:", error);
         return;
       }
@@ -154,7 +154,7 @@ export default function RecruiterProfile() {
 
       const newPictureUrl = urlData?.publicUrl;
       if (!newPictureUrl || !newPictureUrl.startsWith("http")) {
-        toast.error("Failed to retrieve a valid image URL");
+        toast.error("Failed to retrieve a valid image URL.");
         return;
       }
 
@@ -170,14 +170,14 @@ export default function RecruiterProfile() {
       );
 
       if (updateError) {
-        toast.error("Failed to save picture to database");
+        toast.error("Failed to save the picture to the database.");
         return;
       }
 
       setOriginalData((prev) => ({ ...prev, picture: newPictureUrl }));
       toast.success("Profile picture updated successfully!");
     } catch (error) {
-      toast.error("Failed to upload image");
+      toast.error("Failed to upload the image.");
     } finally {
       setPictureSaving(false);
     }
@@ -185,7 +185,7 @@ export default function RecruiterProfile() {
 
   const handleSave = async () => {
     if (!user?.email) {
-      toast.error("User not authenticated");
+      toast.error("The user is not authenticated.");
       return;
     }
 
@@ -203,14 +203,14 @@ export default function RecruiterProfile() {
       );
 
       if (error) {
-        toast.error("Failed to update profile");
+        toast.error("Failed to update the profile.");
         return;
       }
 
       setOriginalData(profileData);
       toast.success("Profile updated successfully!");
     } catch (error) {
-      toast.error("Failed to save profile");
+      toast.error("Failed to save the profile.");
     } finally {
       setSaving(false);
     }
@@ -220,7 +220,7 @@ export default function RecruiterProfile() {
     if (!password) return;
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      toast.error("The password must be at least 8 characters long.");
       return;
     }
 
@@ -228,13 +228,13 @@ export default function RecruiterProfile() {
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
-        toast.error("Failed to change password");
+        toast.error("Failed to change the password.");
       } else {
         toast.success("Password changed successfully!");
         setPassword("");
       }
     } catch (e) {
-      toast.error("Error changing password");
+      toast.error("An error occurred while changing the password.");
     } finally {
       setPasswordSaving(false);
     }

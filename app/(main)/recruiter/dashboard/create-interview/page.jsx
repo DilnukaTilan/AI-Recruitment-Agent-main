@@ -21,7 +21,7 @@ function CreateInterview() {
 
   useEffect(() => {
     if (user && user.credits <= 0) {
-      toast.error("You don't have enough credits to create an interview");
+      toast.error("You don't have enough credits to create an interview.");
       router.push("/recruiter/billing");
     }
   }, [user, router]);
@@ -35,7 +35,7 @@ function CreateInterview() {
 
   const onGoToNext = () => {
     if (user?.credits <= 0) {
-      toast.error("Please purchase credits to create an interview");
+      toast.error("Please purchase credits to create an interview.");
       router.push("/recruiter/billing");
       return;
     }
@@ -47,7 +47,7 @@ function CreateInterview() {
     else if (!formData.type) missingField = "Interview Type";
 
     if (missingField) {
-      toast.error(`${missingField} is required`);
+      toast.error(`${missingField} is required.`);
       return;
     }
 
@@ -58,7 +58,7 @@ function CreateInterview() {
     setLoading(true);
 
     if (user?.credits <= 0) {
-      toast.error("Please purchase credits to create an interview");
+      toast.error("Please purchase credits to create an interview.");
       router.push("/recruiter/billing");
       setLoading(false);
       return;
@@ -67,7 +67,7 @@ function CreateInterview() {
       setInterviewId(interview_id);
       setStep(step + 1);
     } catch (error) {
-      toast.error("Failed to create interview link");
+      toast.error("Failed to create the interview link.");
       console.error(error);
     } finally {
       setLoading(false);

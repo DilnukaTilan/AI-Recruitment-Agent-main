@@ -33,7 +33,7 @@ export function LoginForm(props) {
     const password = passwordRef.current?.value || "";
 
     if (!email || !password) {
-      toast.error("Please provide both email and password.");
+      toast.error("Please provide both an email and a password.");
       return;
     }
 
@@ -51,7 +51,7 @@ export function LoginForm(props) {
       toast.success("Login successful!");
     } catch (err) {
       console.error("Unexpected error:", err);
-      toast.error("Unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

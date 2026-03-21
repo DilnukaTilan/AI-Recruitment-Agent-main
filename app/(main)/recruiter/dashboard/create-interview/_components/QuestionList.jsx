@@ -122,7 +122,7 @@ function QuestionList({
 
       if (!rawContent) {
         setError("Invalid response format from AI. Please try again.");
-        toast("Invalid response format");
+        toast("Invalid response format.");
         setLoading(false);
         return;
       }
@@ -142,7 +142,7 @@ function QuestionList({
       if (axios.isCancel(e) || e?.name === "CanceledError") return;
 
       setError("Failed to generate questions. Please try again.");
-      toast("Server error. Please try again.");
+      toast("A server error occurred. Please try again.");
       console.error("Error generating questions:", e);
       setLoading(false);
     }
@@ -157,7 +157,7 @@ function QuestionList({
 
   const handleAddQuestion = () => {
     if (!newQuestion.trim()) {
-      toast("Please enter a question");
+      toast("Please enter a question.");
       return;
     }
 
@@ -178,7 +178,7 @@ function QuestionList({
 
     setNewQuestion("");
     setNewQuestionType(QUESTION_TYPES[0].value);
-    toast.success("Question added successfully");
+    toast.success("The question was added successfully.");
   };
 
   const handleDeleteQuestion = (id) => {
@@ -193,7 +193,7 @@ function QuestionList({
 
     setDeleteDialogOpen(false);
     setDeletingId(null);
-    toast.success("Question deleted successfully");
+    toast.success("The question was deleted successfully.");
   };
 
   const openDeleteDialog = (id) => {
@@ -216,7 +216,7 @@ function QuestionList({
 
   const handleSaveEdit = () => {
     if (!editingQuestion.trim()) {
-      toast("Question cannot be empty");
+      toast("The question cannot be empty.");
       return;
     }
 
@@ -235,7 +235,7 @@ function QuestionList({
 
     setEditDialogOpen(false);
     setEditingId(null);
-    toast.success("Question updated successfully");
+    toast.success("The question was updated successfully.");
   };
 
   const handleMoveQuestion = (index, direction) => {
@@ -259,7 +259,7 @@ function QuestionList({
   const handleRefreshQuestions = () => {
     GenerateQuestionList();
     setRegenerateCount((c) => c + 1);
-    toast("Regenerating questions…");
+    toast("Regenerating the questions…");
   };
 
   const onFinish = async () => {
@@ -305,7 +305,7 @@ function QuestionList({
         .select();
 
       if (insertError) {
-        toast.error("Failed to save interview. Please try again.");
+        toast.error("Failed to save the interview. Please try again.");
         console.error("Supabase error:", insertError);
         setSaveLoading(false);
         return;
@@ -316,11 +316,11 @@ function QuestionList({
 
       if (!creditUpdateResult.success) {
         toast.error(
-          "Interview saved, but failed to deduct credit. Please contact support.",
+          "The interview was saved, but we failed to deduct a credit. Please contact support.",
         );
       } else {
         toast.success(
-          `Interview saved! You now have ${newCredits} credit${newCredits !== 1 ? "s" : ""} remaining.`,
+          `The interview was saved! You now have ${newCredits} credit${newCredits !== 1 ? "s" : ""} remaining.`,
         );
       }
 
@@ -328,11 +328,11 @@ function QuestionList({
         onCreateLink(interview_id);
       } catch (callbackError) {
         console.error("Error in onCreateLink callback:", callbackError);
-        toast.error("Interview saved, but failed to generate the link.");
+        toast.error("The interview was saved, but we failed to generate the link.");
       }
     } catch (e) {
       console.error("Error saving interview:", e);
-      toast.error("Error saving interview. Please try again.");
+      toast.error("An error occurred while saving the interview. Please try again.");
     } finally {
       setSaveLoading(false);
     }

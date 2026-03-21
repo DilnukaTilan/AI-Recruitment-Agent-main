@@ -80,7 +80,7 @@ export const AuthContextProvider = ({ children }) => {
         .single();
 
       if (profileError || !userData) {
-        toast.error("Could not fetch user profile.");
+        toast.error("Could not fetch the user profile.");
         return { success: false, error: "Profile not found." };
       }
 
@@ -95,7 +95,7 @@ export const AuthContextProvider = ({ children }) => {
 
       setUserProfile(userData);
 
-      toast.success("Logged in!");
+      toast.success("Logged in successfully!");
 
       if (userData.role === "recruiter") {
         window.location.href = "/recruiter/dashboard";

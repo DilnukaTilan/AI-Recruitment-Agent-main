@@ -18,7 +18,7 @@ export default function AuthCallback() {
       } = await supabase.auth.getSession();
 
       if (error || !session?.user) {
-        toast.error("Failed to complete sign in");
+        toast.error("Failed to complete the sign-in process.");
         console.error("Session error:", error);
         setLoading(false);
         return;
@@ -76,7 +76,7 @@ export default function AuthCallback() {
               .eq("email", user.email)
               .single();
             if (fetchAgainError) {
-              toast.error("Failed to retrieve user profile after conflict.");
+              toast.error("Failed to retrieve the user profile after a conflict.");
               console.error("Re-fetch error:", fetchAgainError);
               setLoading(false);
               return;

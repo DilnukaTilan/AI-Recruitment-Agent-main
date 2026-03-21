@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import {
@@ -93,7 +93,7 @@ export default function Billing() {
 
       window.location.href = data.url;
     } catch (error) {
-      toast.error("Could not start checkout. Please try again.");
+      toast.error("Could not start the checkout process. Please try again.");
       console.error("Stripe checkout error:", error);
       setLoading(false);
     }

@@ -92,7 +92,7 @@ function FormContainer({ formData, onHandleInputChange, GoToNext }) {
       <div>
         <SectionLabel icon={LayoutGrid} label="Interview Type" />
         <p className="text-xs text-slate-400 mb-3 -mt-1">
-          Select one or more types that apply
+          Select one or more types that apply.
         </p>
         <div className="flex flex-wrap gap-2.5">
           {InterviewType.map((type, index) => {

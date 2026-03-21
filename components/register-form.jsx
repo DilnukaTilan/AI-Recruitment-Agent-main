@@ -36,12 +36,12 @@ export function RegisterForm() {
     const password = passwordRef.current?.value;
 
     if (!email || !name || !password) {
-      toast.error("Please fill in all fields.");
+      toast.error("Please fill in all the fields.");
       return;
     }
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters long.");
+      toast.error("The password must be at least 8 characters long.");
       return;
     }
 
@@ -65,13 +65,13 @@ export function RegisterForm() {
       }
     } catch (err) {
       console.error("Catch block error:", err);
-      toast.error("Unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     }
   };
 
   const SignUpWithGoogle = async () => {
     if (!role) {
-      toast.error("Please select a role first");
+      toast.error("Please select a role first.");
       return;
     }
 
