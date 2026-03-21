@@ -75,9 +75,13 @@ function SectionLabel({ icon: Icon, label }) {
   );
 }
 
-function QuestionList({ formData, onCreateLink }) {
-  const [loading, setLoading] = useState(true);
-  const [questionList, setQuestionList] = useState(null);
+function QuestionList({
+  formData,
+  onCreateLink,
+  questionList,
+  setQuestionList,
+}) {
+  const [loading, setLoading] = useState(!questionList);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState(null);
   const [regenerateCount, setRegenerateCount] = useState(0);
@@ -145,9 +149,11 @@ function QuestionList({ formData, onCreateLink }) {
   }, [formData]);
 
   useEffect(() => {
-    GenerateQuestionList();
+    if (!questionList) {
+      GenerateQuestionList();
+    }
     return () => abortControllerRef.current?.abort();
-  }, [GenerateQuestionList]);
+  }, []);
 
   const handleAddQuestion = () => {
     if (!newQuestion.trim()) {

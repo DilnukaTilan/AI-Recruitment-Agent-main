@@ -15,6 +15,7 @@ function CreateInterview() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [interviewId, setInterviewId] = useState();
+  const [questionList, setQuestionList] = useState(null);
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
 
@@ -80,7 +81,7 @@ function CreateInterview() {
       <div className="flex flex-col gap-1 border-b pb-4">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => (step > 1 ? setStep(step - 1) : router.back())}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm text-slate-500 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
             aria-label="Go back"
           >
@@ -128,6 +129,7 @@ function CreateInterview() {
         <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
           <div className="relative z-10 p-6 sm:p-8">
             <FormContainer
+              formData={formData}
               onHandleInputChange={onHandleInputChange}
               GoToNext={onGoToNext}
             />
@@ -139,6 +141,8 @@ function CreateInterview() {
           formData={formData}
           onCreateLink={onCreateLink}
           loading={loading}
+          questionList={questionList}
+          setQuestionList={setQuestionList}
         />
       )}
     </div>

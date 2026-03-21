@@ -31,8 +31,8 @@ function SectionLabel({ icon: Icon, label }) {
   );
 }
 
-function FormContainer({ onHandleInputChange, GoToNext }) {
-  const [interviewType, setInterviewType] = useState([]);
+function FormContainer({ formData, onHandleInputChange, GoToNext }) {
+  const [interviewType, setInterviewType] = useState(formData?.type || []);
 
   useEffect(() => {
     onHandleInputChange("type", interviewType);
@@ -52,6 +52,7 @@ function FormContainer({ onHandleInputChange, GoToNext }) {
         <SectionLabel icon={Briefcase} label="Job Position" />
         <Input
           placeholder="e.g. Software Engineer"
+          defaultValue={formData?.jobPosition || ""}
           className="rounded-xl border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
           onChange={(e) => onHandleInputChange("jobPosition", e.target.value)}
         />
@@ -61,6 +62,7 @@ function FormContainer({ onHandleInputChange, GoToNext }) {
         <SectionLabel icon={FileText} label="Job Description" />
         <Textarea
           placeholder="Describe the role, responsibilities, and requirements..."
+          defaultValue={formData?.jobDescription || ""}
           className="h-[180px] rounded-xl border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-400/20 transition-colors resize-none"
           onChange={(e) =>
             onHandleInputChange("jobDescription", e.target.value)
@@ -71,6 +73,7 @@ function FormContainer({ onHandleInputChange, GoToNext }) {
       <div>
         <SectionLabel icon={Clock} label="Interview Duration" />
         <Select
+          defaultValue={formData?.duration || undefined}
           onValueChange={(value) => onHandleInputChange("duration", value)}
         >
           <SelectTrigger className="w-full rounded-xl border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-400/20 transition-colors">
