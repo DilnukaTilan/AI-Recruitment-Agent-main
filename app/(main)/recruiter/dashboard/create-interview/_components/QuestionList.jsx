@@ -146,14 +146,15 @@ function QuestionList({
       console.error("Error generating questions:", e);
       setLoading(false);
     }
-  }, [formData]);
+  }, [formData, setQuestionList]);
 
   useEffect(() => {
     if (!questionList) {
+      setRegenerateCount(0);
       GenerateQuestionList();
     }
     return () => abortControllerRef.current?.abort();
-  }, []);
+  }, [GenerateQuestionList, questionList]);
 
   const handleAddQuestion = () => {
     if (!newQuestion.trim()) {
@@ -202,7 +203,7 @@ function QuestionList({
   };
 
   const handleEditQuestion = (id) => {
-    const q = questionList.interviewQuestions.find((q) => q.id === id);
+    const q = questionList?.interviewQuestions?.find((q) => q.id === id);
     if (!q) return;
 
     setEditingId(id);
@@ -257,8 +258,12 @@ function QuestionList({
   };
 
   const handleRefreshQuestions = () => {
-    GenerateQuestionList();
+    if (userCredits <= 0) {
+      toast.error("You don't have enough credits to regenerate questions.");
+      return;
+    }
     setRegenerateCount((c) => c + 1);
+    GenerateQuestionList();
     toast("Regenerating the questions…");
   };
 
@@ -292,6 +297,15 @@ function QuestionList({
         return;
       }
 
+      const newCredits = currentCredits - 1;
+      const creditUpdateResult = await updateUserCredits(newCredits);
+
+      if (!creditUpdateResult.success) {
+        toast.error("Your interview was not saved. Please try again.");
+        setSaveLoading(false);
+        return;
+      }
+
       const { error: insertError } = await supabase
         .from("interviews")
         .insert([
@@ -305,24 +319,18 @@ function QuestionList({
         .select();
 
       if (insertError) {
-        toast.error("Failed to save the interview. Please try again.");
+        await updateUserCredits(currentCredits);
+        toast.error(
+          "Failed to save the interview. Your credit has been restored. Please try again.",
+        );
         console.error("Supabase error:", insertError);
         setSaveLoading(false);
         return;
       }
 
-      const newCredits = currentCredits - 1;
-      const creditUpdateResult = await updateUserCredits(newCredits);
-
-      if (!creditUpdateResult.success) {
-        toast.error(
-          "The interview was saved, but we failed to deduct a credit. Please contact support.",
-        );
-      } else {
-        toast.success(
-          `The interview was saved! You now have ${newCredits} credit${newCredits !== 1 ? "s" : ""} remaining.`,
-        );
-      }
+      toast.success(
+        `The interview was saved! You now have ${newCredits} credit${newCredits !== 1 ? "s" : ""} remaining.`,
+      );
 
       try {
         onCreateLink(interview_id);
@@ -436,7 +444,7 @@ function QuestionList({
                   variant="outline"
                   onClick={handleRefreshQuestions}
                   disabled={regenerateCount >= 2}
-                  className={`flex items-center gap-2 rounded-xl border-slate-200 transition-all duration-200 ${
+                  className={`group flex items-center gap-2 rounded-xl border-slate-200 transition-all duration-200 ${
                     regenerateCount >= 2
                       ? "text-slate-400 cursor-not-allowed opacity-50"
                       : "text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
@@ -447,7 +455,7 @@ function QuestionList({
                       : undefined
                   }
                 >
-                  <RefreshCwIcon className="h-4 w-4" />
+                  <RefreshCwIcon className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
                   Regenerate
                 </Button>
               </div>

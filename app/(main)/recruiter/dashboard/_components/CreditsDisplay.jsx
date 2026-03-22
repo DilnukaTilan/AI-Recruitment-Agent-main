@@ -61,13 +61,13 @@ function CreditsDisplay() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 rounded-xl bg-blue-50/50 p-4 border border-blue-100/50">
-                  <Zap className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                <div className="flex items-start gap-3 rounded-xl bg-emerald-50 p-4 border border-emerald-100">
+                  <Zap className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                   <div>
-                    <h4 className="text-sm font-semibold text-blue-900">
+                    <h4 className="text-sm font-semibold text-emerald-900">
                       Ready to recruit
                     </h4>
-                    <p className="mt-1 text-sm text-blue-700">
+                    <p className="mt-1 text-sm text-emerald-700">
                       Each new interview costs 1 credit. You have enough credits
                       for <strong>{credits}</strong> more interview
                       {credits === 1 ? "" : "s"}.

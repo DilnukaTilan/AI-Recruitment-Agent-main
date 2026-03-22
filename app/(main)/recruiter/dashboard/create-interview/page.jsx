@@ -17,20 +17,28 @@ function CreateInterview() {
   const [interviewId, setInterviewId] = useState();
   const [questionList, setQuestionList] = useState(null);
   const { user } = useUser();
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user && user.credits <= 0) {
+    if (step === 1 && user && user.credits <= 0) {
       toast.error("You don't have enough credits to create an interview.");
       router.push("/recruiter/billing");
     }
-  }, [user, router]);
+  }, [user, router, step]);
 
   const onHandleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => {
+      const oldValue = prev[field];
+      const changed =
+        Array.isArray(value) && Array.isArray(oldValue)
+          ? JSON.stringify(value) !== JSON.stringify(oldValue)
+          : value !== oldValue;
+
+      if (changed) {
+        setQuestionList(null);
+      }
+
+      return { ...prev, [field]: value };
+    });
   };
 
   const onGoToNext = () => {
@@ -44,7 +52,8 @@ function CreateInterview() {
     if (!formData.jobPosition) missingField = "Job Position";
     else if (!formData.jobDescription) missingField = "Job Description";
     else if (!formData.duration) missingField = "Duration";
-    else if (!formData.type) missingField = "Interview Type";
+    else if (!formData.type || formData.type.length === 0)
+      missingField = "Interview Type";
 
     if (missingField) {
       toast.error(`${missingField} is required.`);
@@ -54,24 +63,9 @@ function CreateInterview() {
     setStep(step + 1);
   };
 
-  const onCreateLink = async (interview_id) => {
-    setLoading(true);
-
-    if (user?.credits <= 0) {
-      toast.error("Please purchase credits to create an interview.");
-      router.push("/recruiter/billing");
-      setLoading(false);
-      return;
-    }
-    try {
-      setInterviewId(interview_id);
-      setStep(step + 1);
-    } catch (error) {
-      toast.error("Failed to create the interview link.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const onCreateLink = (interview_id) => {
+    setInterviewId(interview_id);
+    setStep(step + 1);
   };
 
   const progressPercent = (step / TOTAL_STEPS) * 100;
@@ -140,7 +134,6 @@ function CreateInterview() {
         <QuestionList
           formData={formData}
           onCreateLink={onCreateLink}
-          loading={loading}
           questionList={questionList}
           setQuestionList={setQuestionList}
         />
