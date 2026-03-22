@@ -73,12 +73,7 @@ export function LoginForm(props) {
   };
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm",
-        className,
-      )}
-    >
+    <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
       <div className="flex flex-col items-center gap-1.5 text-center">
         <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
