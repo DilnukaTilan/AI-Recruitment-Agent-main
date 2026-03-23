@@ -80,11 +80,12 @@ function QuestionList({
   onCreateLink,
   questionList,
   setQuestionList,
+  regenerateCount,
+  setRegenerateCount,
 }) {
   const [loading, setLoading] = useState(!questionList);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [regenerateCount, setRegenerateCount] = useState(0);
   const [newQuestion, setNewQuestion] = useState("");
   const [newQuestionType, setNewQuestionType] = useState(
     QUESTION_TYPES[0].value,
@@ -150,7 +151,6 @@ function QuestionList({
 
   useEffect(() => {
     if (!questionList) {
-      setRegenerateCount(0);
       GenerateQuestionList();
     }
     return () => abortControllerRef.current?.abort();

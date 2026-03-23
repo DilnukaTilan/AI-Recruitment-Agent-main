@@ -16,6 +16,7 @@ function CreateInterview() {
   const [formData, setFormData] = useState({});
   const [interviewId, setInterviewId] = useState();
   const [questionList, setQuestionList] = useState(null);
+  const [regenerateCount, setRegenerateCount] = useState(0);
   const { user } = useUser();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ function CreateInterview() {
 
       if (changed) {
         setQuestionList(null);
+        setRegenerateCount(0);
       }
 
       return { ...prev, [field]: value };
@@ -136,6 +138,8 @@ function CreateInterview() {
           onCreateLink={onCreateLink}
           questionList={questionList}
           setQuestionList={setQuestionList}
+          regenerateCount={regenerateCount}
+          setRegenerateCount={setRegenerateCount}
         />
       )}
     </div>
