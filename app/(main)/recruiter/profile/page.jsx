@@ -586,7 +586,7 @@ export default function RecruiterProfile() {
                     className={`text-xs font-semibold uppercase tracking-wide
                       ${color === "blue" ? "text-blue-500" : ""}
                       ${color === "indigo" ? "text-indigo-500" : ""}
-                      ${color === "emerald" ? "text-emerald-600" : ""}
+                      ${color === "emerald" ? "text-emerald-500" : ""}
                     `}
                   >
                     {label}

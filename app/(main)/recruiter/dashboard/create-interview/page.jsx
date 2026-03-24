@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import FormContainer from "./_components/FormContainer";
 import QuestionList from "./_components/QuestionList";
+import InterviewLink from "./_components/InterviewLink";
 import { useUser } from "@/app/provider";
 
 const TOTAL_STEPS = 3;
@@ -140,6 +141,13 @@ function CreateInterview() {
           setQuestionList={setQuestionList}
           regenerateCount={regenerateCount}
           setRegenerateCount={setRegenerateCount}
+        />
+      )}
+      {step === 3 && (
+        <InterviewLink
+          interview_id={interviewId}
+          formData={formData}
+          questionList={questionList}
         />
       )}
     </div>
