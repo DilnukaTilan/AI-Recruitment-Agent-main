@@ -97,7 +97,7 @@ const InterviewLink = ({ interview_id, formData, questionList }) => {
     const companyName = user?.companyName || "";
 
     const subject = `Invitation to Interview for the ${interviewTitle} Position | ${companyName}`;
-    const body = `Dear Candidate,\n\nWe are pleased to invite you to interview for the ${interviewTitle} position. This interview is designed to assess your skills and provide an opportunity to demonstrate your abilities.\n\nYou can access the interview using the following link:\n${url}\n\nPlease ensure you complete the interview before the deadline (${expiresAt}). If you have any questions or require assistance, please do not hesitate to contact us.\n\nWe look forward to your responses.\n\nBest regards,\n${senderName} \n${companyName}`;
+    const body = `Dear Candidate,\n\nWe are pleased to invite you to interview for the ${interviewTitle} position. This interview is designed to assess your skills and provide an opportunity to demonstrate your abilities.\n\nYou can access the interview using the following link:\n${url}\n\nPlease complete the interview by the deadline (${expiresAt}). If you have any questions or require assistance, please do not hesitate to contact us.\n\nWe look forward to your responses.\n\nBest regards,\n${senderName} \n${companyName}`;
 
     return { subject, body };
   };

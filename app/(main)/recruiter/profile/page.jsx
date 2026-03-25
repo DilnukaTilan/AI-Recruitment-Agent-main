@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@/app/provider";
 import { supabase } from "@/services/supabaseClient";
 import { Button } from "@/components/ui/button";
@@ -19,11 +20,14 @@ import {
   BadgeCheck,
   Lock,
   Building2,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RecruiterProfile() {
   const { user, fetchAndSetUser } = useUser();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const [saving, setSaving] = useState(false);
@@ -40,6 +44,9 @@ export default function RecruiterProfile() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [authProvider, setAuthProvider] = useState(null);
   const userEmailRef = useRef(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   useEffect(() => {
     const fetchProvider = async () => {
@@ -256,6 +263,36 @@ export default function RecruiterProfile() {
       toast.error("An error occurred while changing the password.");
     } finally {
       setPasswordSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") return;
+    setDeleting(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const res = await fetch("/api/delete-account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        toast.error(result.error || "Failed to delete account.");
+        return;
+      }
+      await supabase.auth.signOut();
+      toast.success("Your account has been deleted.");
+      router.push("/login");
+    } catch (error) {
+      toast.error("An error occurred while deleting your account.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -641,6 +678,111 @@ export default function RecruiterProfile() {
           </div>
         </div>
       </div>
+
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
+        <div className="p-6 sm:p-8">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-red-500 to-rose-600 text-white shadow-md shadow-red-500/30">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="text-base font-bold text-slate-900">
+                Danger Zone
+              </h4>
+              <p className="text-xs text-slate-500">
+                Irreversible account actions
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-red-100 bg-red-50/60 p-4">
+            <div>
+              <p className="text-sm font-semibold text-red-900">
+                Delete Account
+              </p>
+              <p className="text-xs text-red-700 mt-0.5">
+                Permanently delete your account and all associated data. This
+                action cannot be undone.
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="group shrink-0 rounded-xl bg-linear-to-r from-red-600 to-rose-600 px-5 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-rose-600 hover:to-red-500 hover:shadow-xl hover:shadow-red-500/30 cursor-pointer"
+            >
+              <Trash2 className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+              Delete Account
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-6 shadow-2xl space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Delete Account
+                </h3>
+                <p className="text-sm text-slate-500">
+                  This action is permanent.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-slate-600">
+              All your data, including your profile and interview history, will
+              be permanently removed. This cannot be undone.
+            </p>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Type <span className="font-mono text-red-600">DELETE</span> to
+                confirm
+              </Label>
+              <Input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                className="rounded-xl border-red-200 bg-red-50/50 focus:border-red-400 focus:ring-red-400/20"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <Button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteConfirmText("");
+                }}
+                disabled={deleting}
+                className="flex-1 rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== "DELETE" || deleting}
+                className="flex-1 rounded-xl bg-linear-to-r from-red-600 to-rose-600 px-4 font-semibold text-white shadow-md transition-all duration-300 hover:from-rose-600 hover:to-red-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Deleting…
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Confirm Delete
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
