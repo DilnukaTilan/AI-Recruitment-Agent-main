@@ -112,7 +112,11 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  const signUpNewUser = async (email, password, { name, role }) => {
+  const signUpNewUser = async (
+    email,
+    password,
+    { name, role, companyName },
+  ) => {
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -121,6 +125,7 @@ export const AuthContextProvider = ({ children }) => {
           data: {
             name,
             role,
+            companyName: role === "recruiter" ? companyName : null,
           },
         },
       });
@@ -141,6 +146,7 @@ export const AuthContextProvider = ({ children }) => {
           email: email.toLowerCase(),
           name,
           role,
+          companyName: role === "recruiter" ? companyName : null,
           password: hashedPassword,
           picture: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
           credits: 3,

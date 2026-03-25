@@ -22,6 +22,7 @@ export function RegisterForm() {
   const router = useRouter();
   const emailRef = useRef();
   const nameRef = useRef();
+  const companyNameRef = useRef();
   const passwordRef = useRef();
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,10 +34,16 @@ export function RegisterForm() {
 
     const email = emailRef.current?.value.trim();
     const name = nameRef.current?.value.trim();
+    const companyName = companyNameRef.current?.value.trim();
     const password = passwordRef.current?.value;
 
     if (!email || !name || !password) {
       toast.error("Please fill in all the fields.");
+      return;
+    }
+
+    if (role === "recruiter" && !companyName) {
+      toast.error("Please enter your company name.");
       return;
     }
 
@@ -52,6 +59,7 @@ export function RegisterForm() {
       const result = await signUpNewUser(email, password, {
         name,
         role,
+        companyName,
       });
 
       console.log("Signup result:", result);
@@ -75,7 +83,18 @@ export function RegisterForm() {
       return;
     }
 
+    const companyName = companyNameRef.current?.value.trim();
+
+    if (role === "recruiter" && !companyName) {
+      toast.error("Please enter your company name.");
+      return;
+    }
+
     localStorage.setItem("pending_role", role);
+    localStorage.setItem(
+      "pending_companyName",
+      role === "recruiter" ? companyName : "",
+    );
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -171,6 +190,18 @@ export function RegisterForm() {
             </SelectContent>
           </Select>
         </div>
+
+        {role === "recruiter" && (
+          <div className="grid gap-1.5">
+            <Label htmlFor="company-name">Company Name</Label>
+            <Input
+              id="company-name"
+              type="text"
+              placeholder="Acme Inc."
+              ref={companyNameRef}
+            />
+          </div>
+        )}
 
         <Button
           type="submit"

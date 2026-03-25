@@ -18,11 +18,12 @@ import {
   CalendarDays,
   BadgeCheck,
   Lock,
+  Building2,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RecruiterProfile() {
-  const { user } = useUser();
+  const { user, fetchAndSetUser } = useUser();
   const [loading, setLoading] = useState(false);
 
   const [saving, setSaving] = useState(false);
@@ -32,6 +33,7 @@ export default function RecruiterProfile() {
     fullname: "",
     email: "",
     picture: null,
+    companyName: "",
   });
   const [originalData, setOriginalData] = useState(null);
   const [password, setPassword] = useState("");
@@ -67,12 +69,13 @@ export default function RecruiterProfile() {
         fullname: user?.name || user?.email?.split("@")[0] || "",
         email: user?.email || "",
         picture: user?.picture || null,
+        companyName: user?.companyName || "",
       };
 
       if (user?.email) {
         const { data: userRecord, error } = await supabase
           .from("users")
-          .select("name, email, picture")
+          .select("name, email, picture, companyName")
           .eq("email", user.email)
           .single();
 
@@ -82,6 +85,7 @@ export default function RecruiterProfile() {
             fullname: userRecord.name || userData.fullname,
             email: userRecord.email || userData.email,
             picture: userRecord.picture || userData.picture,
+            companyName: userRecord.companyName || "",
           };
         }
       }
@@ -123,6 +127,7 @@ export default function RecruiterProfile() {
     if (!file) return;
 
     const currentFullname = profileData.fullname;
+    const currentCompanyName = profileData.companyName;
 
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file.");
@@ -165,6 +170,7 @@ export default function RecruiterProfile() {
           email: user.email,
           name: currentFullname,
           picture: newPictureUrl,
+          companyName: currentCompanyName,
         },
         { onConflict: "email" },
       );
@@ -175,6 +181,7 @@ export default function RecruiterProfile() {
       }
 
       setOriginalData((prev) => ({ ...prev, picture: newPictureUrl }));
+      await fetchAndSetUser?.();
       toast.success("Profile picture updated successfully!");
     } catch (error) {
       toast.error("Failed to upload the image.");
@@ -191,6 +198,11 @@ export default function RecruiterProfile() {
 
     if (saving) return;
 
+    if (!profileData.companyName.trim()) {
+      toast.error("Please enter your company name.");
+      return;
+    }
+
     try {
       setSaving(true);
       const { error } = await supabase.from("users").upsert(
@@ -198,6 +210,7 @@ export default function RecruiterProfile() {
           email: user.email,
           name: profileData.fullname,
           picture: profileData.picture,
+          companyName: profileData.companyName.trim(),
         },
         { onConflict: "email" },
       );
@@ -207,7 +220,13 @@ export default function RecruiterProfile() {
         return;
       }
 
-      setOriginalData(profileData);
+      const updatedProfile = {
+        ...profileData,
+        companyName: profileData.companyName.trim(),
+      };
+      setProfileData(updatedProfile);
+      setOriginalData(updatedProfile);
+      await fetchAndSetUser?.();
       toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error("Failed to save the profile.");
@@ -326,6 +345,10 @@ export default function RecruiterProfile() {
                 Recruiter
               </Badge>
             </div>
+            <p className="text-sm text-slate-600 flex items-center justify-center sm:justify-start gap-1.5">
+              <Building2 className="h-3.5 w-3.5 text-slate-400" />
+              {profileData.companyName || "Add your company name"}
+            </p>
             <p className="text-sm text-slate-500 flex items-center justify-center sm:justify-start gap-1.5">
               <Mail className="h-3.5 w-3.5 text-slate-400" />
               {profileData.email}
@@ -360,7 +383,7 @@ export default function RecruiterProfile() {
                   Personal Information
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Update your name and account details
+                  Update your name, company, and account details
                 </p>
               </div>
             </div>
@@ -380,6 +403,24 @@ export default function RecruiterProfile() {
                     handleInputChange("fullname", e.target.value)
                   }
                   placeholder="Enter your full name"
+                  className="rounded-xl border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="companyName"
+                  className="text-xs font-semibold uppercase tracking-wide text-slate-500"
+                >
+                  Company Name
+                </Label>
+                <Input
+                  id="companyName"
+                  value={profileData.companyName}
+                  onChange={(e) =>
+                    handleInputChange("companyName", e.target.value)
+                  }
+                  placeholder="Enter your company name"
                   className="rounded-xl border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
                 />
               </div>

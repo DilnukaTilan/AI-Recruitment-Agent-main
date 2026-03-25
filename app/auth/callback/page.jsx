@@ -54,6 +54,8 @@ export default function AuthCallback() {
 
       if (!existingUser) {
         const savedRole = localStorage.getItem("pending_role") || "candidate";
+        const savedCompanyName =
+          localStorage.getItem("pending_companyName") || null;
         finalRole = savedRole;
 
         const { error: insertError } = await supabase.from("users").insert([
@@ -61,6 +63,8 @@ export default function AuthCallback() {
             email: user.email,
             name: user.user_metadata?.full_name || "No Name",
             role: savedRole,
+            companyName:
+              savedRole === "recruiter" ? savedCompanyName : null,
           },
         ]);
 
@@ -102,6 +106,7 @@ export default function AuthCallback() {
       }
 
       localStorage.removeItem("pending_role");
+      localStorage.removeItem("pending_companyName");
 
       if (finalRole === "recruiter") {
         router.push("/recruiter/dashboard");

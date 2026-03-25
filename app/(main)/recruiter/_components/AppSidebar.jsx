@@ -52,6 +52,14 @@ export function AppSidebar() {
         </span>
       </SidebarHeader>
 
+      {user?.companyName && (
+        <div className="px-3 pb-2 group-data-[collapsible=icon]:hidden">
+          <div className="truncate rounded-full border border-blue-200/70 bg-linear-to-r from-blue-50 via-white to-cyan-50 px-3 py-1.5 text-center text-xs font-medium tracking-[0.02em] text-blue-700 shadow-sm ring-1 ring-blue-100/80">
+            {user.companyName}
+          </div>
+        </div>
+      )}
+
       <div className="px-3 group-data-[collapsible=icon]:px-1.5">
         <Button
           className="w-full cursor-pointer gap-2 rounded-lg shadow-sm transition-all hover:shadow-md"

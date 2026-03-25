@@ -94,17 +94,19 @@ const InterviewLink = ({ interview_id, formData, questionList }) => {
 
   const getEmailContent = () => {
     const senderName = user?.name ? `${user.name} (Recruiter)` : "Recruiter";
+    const companyName = user?.companyName || "";
 
-    const subject = `Invitation to Interview for the ${interviewTitle} Position`;
-    const body = `Dear Candidate,\n\nWe are pleased to invite you to interview for the ${interviewTitle} Position. This interview is designed to assess your skills and provide an opportunity to demonstrate your abilities.\n\nYou can access the interview using the following link:\n${url}\n\nPlease ensure you complete the interview before the deadline (${expiresAt}). If you have any questions or require assistance, please do not hesitate to contact us.\n\nWe look forward to your responses.\n\nBest regards,\n${senderName}`;
+    const subject = `Invitation to Interview for the ${interviewTitle} Position | ${companyName}`;
+    const body = `Dear Candidate,\n\nWe are pleased to invite you to interview for the ${interviewTitle} position. This interview is designed to assess your skills and provide an opportunity to demonstrate your abilities.\n\nYou can access the interview using the following link:\n${url}\n\nPlease ensure you complete the interview before the deadline (${expiresAt}). If you have any questions or require assistance, please do not hesitate to contact us.\n\nWe look forward to your responses.\n\nBest regards,\n${senderName} \n${companyName}`;
 
     return { subject, body };
   };
 
   const shareVia = (platform) => {
     const senderName = user?.name ? `${user.name} (Recruiter)` : "Recruiter";
+    const companyName = user?.companyName || "";
 
-    const whatsappMessage = `Dear Candidate,\n\nYou are invited to participate in the interview process for the ${interviewTitle} position.\n\nPlease use the link below to access your interview:\n${url}\n\nKindly complete it on or before ${expiresAt}.\n\nIf you need any assistance, please feel free to reach out.\n\nBest regards,\n${senderName}`;
+    const whatsappMessage = `Dear Candidate,\n\nYou are invited to participate in the interview process for the ${interviewTitle} position.\n\nPlease use the link below to access your interview:\n${url}\n\nKindly complete it on or before ${expiresAt}.\n\nIf you need any assistance, please feel free to reach out.\n\nBest regards,\n${senderName} \n${companyName}`;
 
     const { subject, body } = getEmailContent();
 
@@ -262,7 +264,7 @@ const InterviewLink = ({ interview_id, formData, questionList }) => {
           Back to Dashboard
         </Button>
         <Button
-          onClick={() => router.push("/recruiter/dashboard/create-interview")}
+          onClick={() => window.location.reload()}
           className="rounded-xl gap-2 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
