@@ -20,29 +20,41 @@ function CreateOptions() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const extractInterviewId = (input) => {
+    const trimmed = input.trim();
+    try {
+      const url = new URL(trimmed);
+      const segments = url.pathname.split("/").filter(Boolean);
+      return segments[segments.length - 1] ?? trimmed;
+    } catch {
+      return trimmed;
+    }
+  };
+
   const handleStart = async () => {
     if (!code.trim()) {
-      toast.error("Please enter an interview code.");
+      toast.error("Please enter an interview link or code.");
       return;
     }
 
+    const interviewId = extractInterviewId(code);
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("Interviews")
+      .from("interviews")
       .select("interview_id")
-      .eq("interview_id", code.trim())
+      .eq("interview_id", interviewId)
       .single();
 
     setLoading(false);
 
     if (error || !data) {
-      toast.error("Invalid interview code. Please try again.");
+      toast.error("Invalid interview link or code. Please try again.");
       return;
     }
 
     toast.success("Redirecting to your interview...");
-    router.push(`/interview/${code.trim()}`);
+    router.push(`/interview/${interviewId}`);
   };
 
   return (
@@ -67,7 +79,7 @@ function CreateOptions() {
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="Enter your code (UUID)"
+              placeholder="Paste interview link or code"
               className="bg-gray-50/50 border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-sm py-5 pl-4 transition-all"
               onKeyDown={(e) => e.key === "Enter" && handleStart()}
             />
@@ -85,7 +97,7 @@ function CreateOptions() {
             ) : (
               <>
                 Start Interview
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1.5" />
               </>
             )}
           </Button>
