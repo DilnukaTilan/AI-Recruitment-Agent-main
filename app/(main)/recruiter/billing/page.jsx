@@ -65,38 +65,40 @@ export default function Billing() {
   const { user } = useUser();
 
   const handlePurchase = async () => {
-    if (!user?.email) {
-      toast.error("You must be logged in to purchase credits.");
-      return;
-    }
+    // if (!user?.email) {
+    //   toast.error("You must be logged in to purchase credits.");
+    //   return;
+    // }
 
-    setLoading(true);
+    // setLoading(true);
 
-    try {
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packageId: selectedPackage.id,
-          packageName: selectedPackage.name,
-          credits: selectedPackage.credits,
-          price: selectedPackage.price,
-          userEmail: user.email,
-        }),
-      });
+    // try {
+    //   const response = await fetch("/api/create-checkout-session", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       packageId: selectedPackage.id,
+    //       packageName: selectedPackage.name,
+    //       credits: selectedPackage.credits,
+    //       price: selectedPackage.price,
+    //       userEmail: user.email,
+    //     }),
+    //   });
 
-      const data = await response.json();
+    //   const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create checkout session");
-      }
+    //   if (!response.ok) {
+    //     throw new Error(data.error || "Failed to create checkout session");
+    //   }
 
-      window.location.href = data.url;
-    } catch (error) {
-      toast.error("Could not start the checkout process. Please try again.");
-      console.error("Stripe checkout error:", error);
-      setLoading(false);
-    }
+    //   window.location.href = data.url;
+    // } catch (error) {
+    //   toast.error("Could not start the checkout process. Please try again.");
+    //   console.error("Stripe checkout error:", error);
+    //   setLoading(false);
+    // }
+
+    toast.error("Payments are currently disabled.");
   };
 
   const credits = user?.credits || 0;
