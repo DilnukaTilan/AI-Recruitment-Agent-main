@@ -37,7 +37,7 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <main className="container mx-auto p-4">{children}</main>
+      <main className="container mx-auto p-1 sm:p-2">{children}</main>
       <SpeedInsights />
     </div>
   );

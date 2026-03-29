@@ -33,7 +33,7 @@ function DashboardLayout({ children }) {
 
   return (
     <DashboardProvider>
-      <div className="p-10 w-full space-y-6">
+      <div className="p-2 sm:p-5 w-full space-y-6">
         <WelcomeContainer />
         {children}
       </div>
