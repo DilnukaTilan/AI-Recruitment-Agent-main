@@ -215,10 +215,7 @@ export default function Home() {
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 backdrop-blur-xl bg-[#050816]/70">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex justify-center gap-2 md:justify-start">
-            <a
-              href="/"
-              className="transition-transform hover:scale-105"
-            >
+            <a href="/" className="transition-transform hover:scale-105">
               <Image
                 src={"/logo.png"}
                 alt="logo"
@@ -695,10 +692,7 @@ export default function Home() {
       <footer className="border-t border-white/5 px-6 py-8">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <div className="flex justify-center gap-2 md:justify-start">
-            <a
-              href="/"
-              className="transition-transform hover:scale-105"
-            >
+            <a href="/" className="transition-transform hover:scale-105">
               <Image
                 src={"/logo.png"}
                 alt="logo"
