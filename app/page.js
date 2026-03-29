@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -216,7 +216,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex justify-center gap-2 md:justify-start">
             <a
-              href="http://localhost:3000/"
+              href="/"
               className="transition-transform hover:scale-105"
             >
               <Image
@@ -696,7 +696,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <div className="flex justify-center gap-2 md:justify-start">
             <a
-              href="http://localhost:3000/"
+              href="/"
               className="transition-transform hover:scale-105"
             >
               <Image
