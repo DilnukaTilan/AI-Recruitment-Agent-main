@@ -199,9 +199,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#050816] text-white overflow-x-hidden">
       <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-150 h-150 rounded-full bg-blue-600/10 blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-125 h-125 rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-100 rounded-full bg-indigo-600/5 blur-[100px]" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-indigo-600/5 blur-[100px]" />
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -213,28 +213,29 @@ export default function Home() {
       </div>
 
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 backdrop-blur-xl bg-[#050816]/70">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex justify-center gap-2 md:justify-start">
-            <a href="/" className="transition-transform hover:scale-105">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+          <div className="shrink-0">
+            <a href="/" className="transition-transform hover:scale-105 block">
               <Image
                 src={"/logo.png"}
                 alt="logo"
                 width={200}
                 height={100}
-                className="w-30"
+                className="w-24 sm:w-30 h-auto"
               />
             </a>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-1 sm:gap-3">
             <button
               onClick={() => router.push("/login")}
-              className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 cursor-pointer"
+              className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors px-2 sm:px-4 py-2 cursor-pointer whitespace-nowrap"
             >
               Sign in
             </button>
             <button
               onClick={handleStartRecruiting}
-              className="text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
+              className="text-xs sm:text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
               Get Started
             </button>
@@ -242,17 +243,17 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="relative pt-40 pb-32 px-6">
+      <section className="relative pt-28 sm:pt-36 md:pt-40 pb-16 sm:pb-24 md:pb-32 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-gray-300 mb-8 backdrop-blur-sm"
+            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-gray-300 mb-6 sm:mb-8 backdrop-blur-sm"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            AI-Powered Recruitment Platform
-            <span className="ml-1 text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full px-2 py-0.5">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400 shrink-0" />
+            <span>AI-Powered Recruitment Platform</span>
+            <span className="ml-1 text-[10px] sm:text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full px-2 py-0.5">
               New
             </span>
           </motion.div>
@@ -261,7 +262,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.08] tracking-tight mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight mb-4 sm:mb-6"
           >
             Smarter Hiring,
             <br />
@@ -274,7 +275,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-10"
+            className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10"
           >
             Transform your recruitment with intelligent matching, automated
             screening, and data-driven insights that deliver{" "}
@@ -288,11 +289,11 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
             <button
               onClick={() => router.push("/login")}
-              className="group flex items-center gap-2 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold px-7 py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 hover:-translate-y-0.5 cursor-pointer"
+              className="group flex items-center gap-2 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 hover:-translate-y-0.5 cursor-pointer w-full sm:w-auto justify-center"
             >
               Start Recruiting
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -303,7 +304,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-gray-500"
+            className="mt-10 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-gray-500"
           >
             <div className="flex -space-x-2">
               {[
@@ -345,9 +346,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 pb-24">
+      <section className="px-4 sm:px-6 pb-16 sm:pb-24">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-px sm:bg-white/5 rounded-2xl overflow-hidden sm:border sm:border-white/5">
             {[
               {
                 value: "85%",
@@ -374,13 +375,13 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white/3 backdrop-blur-sm p-8 hover:bg-white/6 transition-colors"
+                className="bg-white/3 backdrop-blur-sm p-6 sm:p-8 hover:bg-white/6 transition-colors rounded-2xl sm:rounded-none border border-white/5 sm:border-0"
               >
                 <div className="flex items-center gap-2 mb-3 text-sm text-gray-400">
                   {stat.icon}
-                  {stat.label}
+                  <span>{stat.label}</span>
                 </div>
-                <div className="text-5xl font-bold text-white mb-1">
+                <div className="text-4xl sm:text-5xl font-bold text-white mb-1">
                   {stat.value}
                 </div>
                 <p className="text-gray-500 text-sm">{stat.desc}</p>
@@ -390,9 +391,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-24 border-t border-white/5">
+      <section className="px-4 sm:px-6 py-16 sm:py-24 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -405,7 +406,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-4xl font-bold mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4"
             >
               How AIcruiter Works
             </motion.h2>
@@ -414,14 +415,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               viewport={{ once: true }}
-              className="text-gray-400 text-lg max-w-2xl mx-auto"
+              className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto"
             >
               Our intelligent platform transforms your hiring process in three
               simple steps
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
@@ -429,7 +430,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.15 }}
                 viewport={{ once: true }}
-                className={`relative rounded-2xl border ${step.border} bg-linear-to-br ${step.color} p-8 backdrop-blur-sm overflow-hidden group hover:-translate-y-1 transition-transform`}
+                className={`relative rounded-2xl border ${step.border} bg-linear-to-br ${step.color} p-6 sm:p-8 backdrop-blur-sm overflow-hidden group hover:-translate-y-1 transition-transform`}
               >
                 <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/5 blur-2xl group-hover:bg-white/10 transition-colors" />
                 <div className="text-6xl font-black text-white/5 absolute top-4 right-6 select-none">
@@ -439,7 +440,9 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center mb-5">
                     {step.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold mb-3">
+                    {step.title}
+                  </h3>
                   <p className="text-gray-400 text-sm leading-relaxed">
                     {step.description}
                   </p>
@@ -450,9 +453,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-24 border-t border-white/5">
+      <section className="px-4 sm:px-6 py-16 sm:py-24 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -465,7 +468,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-4xl font-bold mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4"
             >
               Powerful Features
             </motion.h2>
@@ -474,13 +477,13 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               viewport={{ once: true }}
-              className="text-gray-400 text-lg max-w-2xl mx-auto"
+              className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto"
             >
               Everything you need to streamline your recruitment process
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -488,14 +491,14 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative rounded-2xl border border-white/5 bg-white/3 hover:bg-white/7 p-7 transition-all hover:-translate-y-1 hover:border-white/10"
+                className="group relative rounded-2xl border border-white/5 bg-white/3 hover:bg-white/7 p-6 sm:p-7 transition-all hover:-translate-y-1 hover:border-white/10"
               >
                 <div
                   className={`w-11 h-11 rounded-xl bg-linear-to-br ${feature.gradient} flex items-center justify-center text-white mb-5 shadow-lg`}
                 >
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2">
                   {feature.title}
                 </h3>
                 <p className="text-gray-400 text-sm leading-relaxed mb-5">
@@ -520,9 +523,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-24 border-t border-white/5">
+      <section className="px-4 sm:px-6 py-16 sm:py-24 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -535,7 +538,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-4xl font-bold mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4"
             >
               Trusted by Teams Worldwide
             </motion.h2>
@@ -544,23 +547,23 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               viewport={{ once: true }}
-              className="text-gray-400 text-lg max-w-2xl mx-auto"
+              className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto"
             >
               Join thousands of companies that have transformed their hiring
               with AIcruiter
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="rounded-2xl border border-white/5 bg-linear-to-br from-blue-600/15 to-violet-600/15 p-8 flex flex-col justify-between"
+              className="rounded-2xl border border-white/5 bg-linear-to-br from-blue-600/15 to-violet-600/15 p-6 sm:p-8 flex flex-col justify-between gap-6"
             >
               <div>
-                <div className="text-2xl font-bold mb-2">1000+</div>
-                <p className="text-gray-400 text-sm mb-8">
+                <div className="text-2xl sm:text-3xl font-bold mb-2">1000+</div>
+                <p className="text-gray-400 text-sm">
                   Companies using AIcruiter to hire better candidates
                 </p>
               </div>
@@ -568,19 +571,19 @@ export default function Home() {
                 {clientLogos.map((client, i) => (
                   <div
                     key={i}
-                    className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm overflow-hidden"
+                    className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center shadow-sm overflow-hidden"
                   >
                     <img
                       src={client.logo}
                       alt={`Client ${i + 1}`}
-                      className="w-10 h-10 object-contain"
+                      className="w-9 h-9 sm:w-10 sm:h-10 object-contain"
                     />
                   </div>
                 ))}
               </div>
             </motion.div>
 
-            <div className="lg:col-span-2 relative min-h-55">
+            <div className="lg:col-span-2 relative min-h-[280px] sm:min-h-[260px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentTestimonial}
@@ -588,10 +591,10 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.4 }}
-                  className="absolute inset-0 rounded-2xl border border-white/5 bg-white/3 p-8 flex flex-col justify-between"
+                  className="absolute inset-0 rounded-2xl border border-white/5 bg-white/3 p-6 sm:p-8 flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex gap-1 mb-5">
+                    <div className="flex gap-1 mb-4 sm:mb-5">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
@@ -599,13 +602,13 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                    <p className="text-gray-200 text-lg leading-relaxed font-medium">
+                    <p className="text-gray-200 text-base sm:text-lg leading-relaxed font-medium">
                       "{testimonials[currentTestimonial].quote}"
                     </p>
                   </div>
-                  <div className="flex items-center justify-between mt-8">
+                  <div className="flex items-center justify-between mt-6 sm:mt-8">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full border border-white/10 overflow-hidden bg-gray-700">
+                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-white/10 overflow-hidden bg-gray-700 shrink-0">
                         {testimonials[currentTestimonial].image ? (
                           <Image
                             src={testimonials[currentTestimonial].image}
@@ -650,13 +653,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-24 border-t border-white/5">
+      <section className="px-4 sm:px-6 py-16 sm:py-24 border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative rounded-3xl overflow-hidden"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden"
           >
             <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-blue-700 to-violet-700" />
             <div
@@ -666,20 +669,20 @@ export default function Home() {
                   "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)",
               }}
             />
-            <div className="relative px-10 py-16 text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/15 border border-white/20 mb-6">
-                <Zap className="w-7 h-7 text-white" />
+            <div className="relative px-6 sm:px-10 py-12 sm:py-16 text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white/15 border border-white/20 mb-5 sm:mb-6">
+                <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
                 Ready to hire smarter?
               </h2>
-              <p className="text-blue-100 text-lg max-w-xl mx-auto mb-8">
+              <p className="text-blue-100 text-base sm:text-lg max-w-xl mx-auto mb-6 sm:mb-8">
                 Join thousands of recruiters using AIcruiter to find the best
                 talent in record time.
               </p>
               <button
                 onClick={handleStartRecruiting}
-                className="group inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-xl cursor-pointer"
+                className="group inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-xl cursor-pointer"
               >
                 Get Started Free
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -689,20 +692,22 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-white/5 px-6 py-8">
+      <footer className="border-t border-white/5 px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-          <div className="flex justify-center gap-2 md:justify-start">
-            <a href="/" className="transition-transform hover:scale-105">
+          <div className="flex justify-center sm:justify-start">
+            <a href="/" className="transition-transform hover:scale-105 block">
               <Image
                 src={"/logo.png"}
                 alt="logo"
                 width={200}
                 height={100}
-                className="w-30"
+                className="w-24 sm:w-30 h-auto"
               />
             </a>
           </div>
-          <p>© {new Date().getFullYear()} AIcruiter. All rights reserved.</p>
+          <p className="text-center sm:text-left">
+            © {new Date().getFullYear()} AIcruiter. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

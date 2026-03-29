@@ -63,36 +63,36 @@ function WelcomeContainer() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-white via-slate-50 to-blue-50/70 p-5 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)] sm:p-6">
-      <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-blue-200/40 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-10 -left-8 h-32 w-32 rounded-full bg-cyan-200/30 blur-2xl" />
+    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-linear-to-br from-white via-slate-50 to-blue-50/70 p-4 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)] sm:rounded-2xl sm:p-6">
+      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-200/40 blur-2xl sm:-right-10 sm:-top-10 sm:h-36 sm:w-36" />
+      <div className="pointer-events-none absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-cyan-200/30 blur-2xl sm:-bottom-10 sm:-left-8 sm:h-32 sm:w-32" />
 
-      <div className="relative z-10 flex items-center justify-between gap-4">
-        <div className="space-y-2">
-          <p className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium tracking-wide text-blue-700">
+      <div className="relative z-10 flex flex-col-reverse items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:text-left">
+        <div className="space-y-1.5 sm:space-y-2">
+          <p className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-blue-700 sm:px-3 sm:py-1 sm:text-xs">
             Recruiter Dashboard
           </p>
-          <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl md:text-2xl">
             Welcome back, <span className="text-blue-700">{userData.name}</span>
           </h2>
-          <p className="text-sm text-slate-600 sm:text-base">
+          <p className="text-xs text-slate-600 sm:text-sm md:text-base">
             AI-driven interviews, smarter shortlisting, and hassle-free hiring.
           </p>
         </div>
 
         {userData.picture ? (
-          <div className="rounded-full bg-white/80 p-1 shadow ring-1 ring-slate-200">
+          <div className="shrink-0 rounded-full bg-white/80 p-0.5 shadow ring-1 ring-slate-200 sm:p-1">
             <Image
               src={userData.picture}
               alt="userAvatar"
               width={56}
               height={56}
-              className="h-14 w-14 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-cover sm:h-14 sm:w-14"
             />
           </div>
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-cyan-500 shadow-lg shadow-blue-300/40">
-            <span className="text-lg font-semibold text-white">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-cyan-500 shadow-lg shadow-blue-300/40 sm:h-14 sm:w-14">
+            <span className="text-sm font-semibold text-white sm:text-lg">
               {userData.name.charAt(0).toUpperCase()}
             </span>
           </div>
