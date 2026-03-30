@@ -69,7 +69,7 @@ function WelcomeContainer() {
 
       <div className="relative z-10 flex flex-col-reverse items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:text-left">
         <div className="space-y-1.5 sm:space-y-2">
-          <p className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-blue-700 sm:px-3 sm:py-1 sm:text-xs">
+          <p className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 font-medium tracking-wide text-blue-700 sm:px-3 sm:py-1 text-xs">
             Candidate Dashboard
           </p>
           <h2 className="text-lg font-semibold text-slate-900 sm:text-xl md:text-2xl">

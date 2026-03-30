@@ -229,13 +229,13 @@ export default function Home() {
           <div className="flex items-center gap-1 sm:gap-3">
             <button
               onClick={() => router.push("/login")}
-              className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors px-2 sm:px-4 py-2 cursor-pointer whitespace-nowrap"
+              className="text-sm text-gray-400 hover:text-white transition-colors px-2 sm:px-4 py-2 cursor-pointer whitespace-nowrap"
             >
               Sign in
             </button>
             <button
               onClick={handleStartRecruiting}
-              className="text-xs sm:text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              className="text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
               Get Started
             </button>
@@ -293,7 +293,7 @@ export default function Home() {
           >
             <button
               onClick={() => router.push("/login")}
-              className="group flex items-center gap-2 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 hover:-translate-y-0.5 cursor-pointer w-full sm:w-auto justify-center"
+              className="group flex items-center gap-2 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 hover:-translate-y-0.5 cursor-pointer w-auto justify-center"
             >
               Start Recruiting
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -567,7 +567,7 @@ export default function Home() {
                   Companies using AIcruiter to hire better candidates
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 justify-center">
                 {clientLogos.map((client, i) => (
                   <div
                     key={i}

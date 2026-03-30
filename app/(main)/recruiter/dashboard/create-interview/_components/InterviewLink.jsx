@@ -157,12 +157,12 @@ const InterviewLink = ({ interview_id, formData, questionList }) => {
 
       <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
         <div className="p-6 sm:p-8 space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/30">
                 <ExternalLink className="h-3.5 w-3.5" />
               </div>
-              <h3 className="text-base font-bold text-slate-800">
+              <h3 className="text-sm sm:text-base font-bold text-slate-800">
                 Interview Link
               </h3>
             </div>
@@ -171,15 +171,15 @@ const InterviewLink = ({ interview_id, formData, questionList }) => {
             </span>
           </div>
 
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3">
             <input
               readOnly
               value={url}
-              className="flex-1 truncate rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none"
+              className="w-full sm:flex-1 truncate rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 text-xs sm:text-sm text-slate-700 outline-none"
             />
             <Button
               onClick={onCopyLink}
-              className="shrink-0 rounded-xl gap-2 bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-200 cursor-pointer"
+              className="shrink-0 w-full sm:w-auto rounded-xl gap-2 bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-200 cursor-pointer"
             >
               <Copy className="h-4 w-4" />
               Copy Link
@@ -254,7 +254,7 @@ const InterviewLink = ({ interview_id, formData, questionList }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <Button
           variant="outline"
           onClick={() => router.push("/recruiter/dashboard")}

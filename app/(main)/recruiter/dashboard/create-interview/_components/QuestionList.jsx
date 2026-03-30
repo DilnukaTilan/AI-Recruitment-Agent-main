@@ -409,21 +409,21 @@ function QuestionList({
 
       {!loading && !error && questionList?.interviewQuestions && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between rounded-xl border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 px-5 py-3.5">
+          <div className="flex gap-2.5 items-center justify-between rounded-xl border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-5 sm:py-3.5">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/30">
                 <CoinsIcon className="h-4 w-4" />
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">
                   Credits Remaining:
                 </span>
-                <span className="text-xl font-extrabold text-blue-600">
+                <span className="text-lg sm:text-xl font-extrabold text-blue-600">
                   {userCredits}
                 </span>
               </div>
             </div>
-            <span className="text-xs font-semibold rounded-full bg-blue-100 text-blue-700 px-3 py-1 border border-blue-200">
+            <span className="text-xs font-semibold rounded-full bg-blue-100 text-blue-700 px-3 py-1 border border-blue-200 self-auto">
               Cost: 1 Credit
             </span>
           </div>
@@ -512,27 +512,29 @@ function QuestionList({
                   questions.map((item, index) => (
                     <div
                       key={item.id}
-                      className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm hover:border-blue-200 hover:shadow-md transition-all duration-200"
+                      className="group flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 sm:px-4 sm:py-4 shadow-sm hover:border-blue-200 hover:shadow-md transition-all duration-200"
                     >
-                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-500">
-                        {index + 1}
+                      <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-500">
+                          {index + 1}
+                        </div>
+
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <p className="text-xs sm:text-sm font-medium text-slate-800 leading-relaxed">
+                            {item.question}
+                          </p>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                              TYPE_BADGE_STYLES[item.type] ??
+                              "bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            {item.type}
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex-1 min-w-0 space-y-1.5">
-                        <p className="text-sm font-medium text-slate-800 leading-relaxed">
-                          {item.question}
-                        </p>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            TYPE_BADGE_STYLES[item.type] ??
-                            "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {item.type}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <div className="flex items-center gap-0.5 shrink-0 self-end sm:self-auto opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150">
                         <button
                           onClick={() => handleMoveQuestion(index, "up")}
                           disabled={index === 0}
@@ -574,7 +576,7 @@ function QuestionList({
 
               <div className="border-t border-slate-100" />
 
-              <div className="flex justify-end">
+              <div className="flex justify-center sm:justify-end">
                 <Button
                   onClick={onFinish}
                   disabled={!canFinish}

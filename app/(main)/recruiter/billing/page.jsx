@@ -138,7 +138,7 @@ export default function Billing() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 rounded-full bg-white/80 border border-blue-200 px-3 py-1.5 shadow-sm w-full sm:w-auto flex-1 sm:flex-initial">
+              <div className="flex items-center justify-center gap-1.5 rounded-full bg-white/80 border border-blue-200 px-3 py-1.5 shadow-sm w-full sm:w-auto">
                 <Zap className="h-3.5 w-3.5 shrink-0 text-blue-600" />
                 <span className="text-xs font-semibold text-blue-700">
                   1 credit = 1 interview
