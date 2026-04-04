@@ -69,11 +69,11 @@ function Interview() {
         .eq("interview_id", interview_id);
 
       if (error) throw error;
-      if (!Interviews?.length) throw new Error("No interview found");
+      if (!Interviews?.length) throw new Error("No interview found.");
 
       setInterviewData(Interviews[0]);
     } catch (error) {
-      toast.error(error.message || "Failed to fetch details");
+      toast.error(error.message || "Failed to fetch details.");
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,7 @@ function Interview() {
       toast.success("Creating your interview session...");
       router.push(`/interview/${interview_id}/start`);
     } catch (error) {
-      toast.error("Connection failed");
+      toast.error("Connection failed!");
     } finally {
       setJoining(false);
     }
