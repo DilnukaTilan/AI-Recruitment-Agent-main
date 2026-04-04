@@ -172,14 +172,12 @@ function Interview() {
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto w-full space-y-8">
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex flex-col items-center text-center">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               AI Interview Portal
             </h1>
-            <p className="mt-1 text-gray-500">
-              Next-generation hiring experience
-            </p>
+            <p className="text-gray-500">Next-generation hiring experience</p>
           </div>
           <div className="relative isolate mt-4 flex h-80 w-full max-w-sm items-center justify-center overflow-hidden rounded-4xl border border-blue-100 sm:h-112 sm:max-w-md sm:p-8">
             <div className="pointer-events-none absolute inset-x-10 top-6 h-16 rounded-full bg-blue-400/20 blur-3xl" />
