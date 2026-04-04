@@ -6,11 +6,10 @@ import {
   PlayCircle,
   Loader2,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabase } from "@/services/supabaseClient";
@@ -40,21 +39,27 @@ function CreateOptions() {
     const interviewId = extractInterviewId(code);
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("interviews")
-      .select("interview_id")
-      .eq("interview_id", interviewId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("interviews")
+        .select("interview_id")
+        .eq("interview_id", interviewId)
+        .single();
 
-    setLoading(false);
+      if (error || !data) {
+        toast.error("Invalid interview link or code. Please try again.");
+        return;
+      }
 
-    if (error || !data) {
-      toast.error("Invalid interview link or code. Please try again.");
-      return;
+      toast.success("Redirecting to your interview...");
+      router.push(`/interview/${interviewId}`);
+    } catch {
+      toast.error(
+        "Something went wrong. Please check your connection and try again.",
+      );
+    } finally {
+      setLoading(false);
     }
-
-    toast.success("Redirecting to your interview...");
-    router.push(`/interview/${interviewId}`);
   };
 
   return (

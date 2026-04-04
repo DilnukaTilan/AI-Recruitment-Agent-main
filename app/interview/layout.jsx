@@ -8,7 +8,7 @@ const InterviewLayout = ({ children }) => {
 
   return (
     <InterviewDataContext.Provider value={{ interviewInfo, setInterviewInfo }}>
-      <div className="bg-secondary pb-6">{children}</div>
+      <div>{children}</div>
     </InterviewDataContext.Provider>
   );
 };
