@@ -1,7 +1,7 @@
 "use client";
 
 import { InterviewDataContext } from "@/context/InterviewDataContext";
-import { Phone, Timer } from "lucide-react";
+import { Phone, Timer, Mic, MicOff, Loader2 } from "lucide-react";
 import Image from "next/image";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import AlertConfirmation from "./_components/AlertConfirmation";
@@ -343,36 +343,94 @@ function StartInterview() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="min-h-screen bg-slate-50 py-6 px-4 sm:px-6 lg:px-8">
+      <style jsx>{`
+        @keyframes pulseRing {
+          0% {
+            transform: scale(1);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(1.6);
+            opacity: 0;
+          }
+        }
+        @keyframes subtlePulse {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.6;
+          }
+        }
+        @keyframes waveBar {
+          0%,
+          100% {
+            height: 8px;
+          }
+          50% {
+            height: 24px;
+          }
+        }
+        .pulse-ring {
+          animation: pulseRing 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .subtle-pulse {
+          animation: subtlePulse 2s ease-in-out infinite;
+        }
+        .wave-bar {
+          animation: waveBar 0.8s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="max-w-4xl mx-auto w-full space-y-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              {interviewInfo?.jobPosition || "AI"} Interview Session
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
+              {interviewInfo?.jobPosition || "AI"} Interview
             </h1>
-            <p className="text-gray-600">Powered by AI Interview Assistant</p>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Powered by AI Interview Assistant
+            </p>
           </div>
 
-          <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-            <Timer className="text-blue-600" />
-            <span className="font-mono text-lg font-semibold text-gray-700">
+          <div className="flex items-center self-center sm:self-auto gap-2.5 rounded-xl border border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 px-4 py-2.5 shadow-sm">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/30">
+              <Timer className="h-3.5 w-3.5" />
+            </div>
+            <span className="font-mono text-sm font-bold text-slate-700 tabular-nums">
               <TimerComponent start={start} />
             </span>
           </div>
-        </header>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
-            className={`bg-white rounded-xl p-6 shadow-md border transition-all duration-300 ${isSpeaking ? "border-blue-300 ring-2 ring-blue-100" : "border-gray-200"}`}
+            className={`relative overflow-hidden rounded-2xl border bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.15)] transition-all duration-500 ${
+              isSpeaking
+                ? "border-blue-300 shadow-[0_10px_35px_-20px_rgba(37,99,235,0.35)]"
+                : "border-slate-200"
+            }`}
           >
-            <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="flex flex-col items-center justify-center px-6 py-8 space-y-4">
               <div className="relative">
                 {isSpeaking && (
-                  <div className="absolute inset-0 rounded-full bg-blue-100 animate-ping opacity-75"></div>
+                  <>
+                    <div className="absolute inset-[-8px] rounded-full border-2 border-blue-400/40 pulse-ring" />
+                    <div
+                      className="absolute inset-[-4px] rounded-full border-2 border-blue-400/20 pulse-ring"
+                      style={{ animationDelay: "0.4s" }}
+                    />
+                  </>
                 )}
-                <div className="relative z-10 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md bg-blue-100">
+                <div
+                  className={`relative z-10 w-20 h-20 rounded-full overflow-hidden border-4 shadow-lg ${
+                    isSpeaking ? "border-blue-300" : "border-white"
+                  }`}
+                >
                   <Image
-                    src="/AIR.png"
+                    src="/recruiter.jpg"
                     alt="AI Recruiter"
                     width={80}
                     height={80}
@@ -381,24 +439,66 @@ function StartInterview() {
                   />
                 </div>
               </div>
-              <div className="text-center">
-                <h2 className="text-lg font-semibold text-gray-800">
+
+              <div className="text-center space-y-1">
+                <h2 className="text-lg font-bold text-slate-800">
                   AI Recruiter
                 </h2>
-                <p className="text-sm text-gray-500">Interview HR</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Interview Assistant
+                </p>
               </div>
+
+              {isSpeaking && (
+                <div
+                  className="flex items-center gap-1"
+                  aria-label="AI is speaking"
+                >
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-1 rounded-full bg-linear-to-t from-blue-600 to-indigo-400 wave-bar"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+              )}
+              {!isSpeaking && !activeUser && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
+                  Idle
+                </span>
+              )}
+              {!isSpeaking && activeUser && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 subtle-pulse">
+                  Listening…
+                </span>
+              )}
             </div>
           </div>
 
           <div
-            className={`bg-white rounded-xl p-6 shadow-md border transition-all duration-300 ${activeUser ? "border-purple-300 ring-2 ring-purple-100" : "border-gray-200"}`}
+            className={`relative overflow-hidden rounded-2xl border bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.15)] transition-all duration-500 ${
+              activeUser
+                ? "border-violet-300 shadow-[0_10px_35px_-20px_rgba(124,58,237,0.30)]"
+                : "border-slate-200"
+            }`}
           >
-            <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="flex flex-col items-center justify-center px-6 py-8 space-y-4">
               <div className="relative">
                 {activeUser && (
-                  <div className="absolute inset-0 rounded-full bg-purple-100 animate-ping opacity-75"></div>
+                  <>
+                    <div className="absolute inset-[-8px] rounded-full border-2 border-violet-400/40 pulse-ring" />
+                    <div
+                      className="absolute inset-[-4px] rounded-full border-2 border-violet-400/20 pulse-ring"
+                      style={{ animationDelay: "0.4s" }}
+                    />
+                  </>
                 )}
-                <div className="relative z-10 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-100 flex items-center justify-center">
+                <div
+                  className={`relative z-10 w-20 h-20 rounded-full overflow-hidden border-4 shadow-lg flex items-center justify-center ${
+                    activeUser ? "border-violet-300" : "border-white"
+                  } ${!userProfile.picture ? "bg-linear-to-br from-violet-100 to-purple-100" : ""}`}
+                >
                   {userProfile.picture ? (
                     <Image
                       src={userProfile.picture}
@@ -409,92 +509,180 @@ function StartInterview() {
                       priority
                     />
                   ) : (
-                    <span className="text-2xl font-bold text-gray-600">
+                    <span className="text-2xl font-bold bg-linear-to-br from-violet-600 to-purple-600 bg-clip-text text-transparent">
                       {userProfile.name.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="text-center">
-                <h2 className="text-lg font-semibold text-gray-800">
+
+              <div className="text-center space-y-1">
+                <h2 className="text-lg font-bold text-slate-800">
                   {userProfile.name}
                 </h2>
-                <p className="text-sm text-gray-500">Candidate</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Candidate
+                </p>
+              </div>
+
+              {activeUser && (
+                <div
+                  className="flex items-center gap-1"
+                  aria-label="You are speaking"
+                >
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-1 rounded-full bg-linear-to-t from-violet-600 to-purple-400 wave-bar"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+              )}
+              {!activeUser && isSpeaking && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
+                  Waiting for AI…
+                </span>
+              )}
+              {!activeUser && !isSpeaking && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
+                  Idle
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.15)]">
+          <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-blue-500 via-indigo-500 to-violet-500" />
+
+          <div className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/30">
+                <Mic className="h-3.5 w-3.5" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Live Transcript
+              </span>
+            </div>
+
+            <div className="rounded-xl border border-blue-100 bg-linear-to-r from-blue-50/80 to-indigo-50/80 px-4 py-3.5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">
+                  Assistant
+                </span>
+                {isSpeaking && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                )}
+              </div>
+              <div className="min-h-10 flex items-center">
+                {subtitles ? (
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    &ldquo;{subtitles}&rdquo;
+                  </p>
+                ) : (
+                  <p className="text-sm text-slate-400 italic">
+                    {isSpeaking ? "AI is speaking…" : "Waiting for assistant…"}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-violet-100 bg-linear-to-r from-violet-50/80 to-purple-50/80 px-4 py-3.5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-violet-700 uppercase tracking-wide">
+                  You
+                </span>
+                {activeUser && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
+                )}
+              </div>
+              <div className="min-h-10 flex items-center">
+                {userTranscript ? (
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    &ldquo;{userTranscript}&rdquo;
+                  </p>
+                ) : (
+                  <p className="text-sm text-slate-400 italic">
+                    {activeUser
+                      ? "Speak now — your transcript will appear here…"
+                      : "Waiting for your response…"}
+                  </p>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-200 space-y-4">
-          <div className="rounded-lg bg-blue-50 border border-blue-100 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1">
-              Assistant
-            </p>
-            <div className="min-h-10 flex items-center justify-center">
-              {subtitles ? (
-                <p className="text-center text-gray-700 animate-fadeIn">
-                  "{subtitles}"
-                </p>
-              ) : (
-                <p className="text-center text-gray-400">
-                  {isSpeaking
-                    ? "AI is speaking..."
-                    : "Waiting for assistant..."}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-lg bg-purple-50 border border-purple-100 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-purple-700 mb-1">
-              Candidate
-            </p>
-            <div className="min-h-10 flex items-center justify-center">
-              {userTranscript ? (
-                <p className="text-center text-gray-700 animate-fadeIn">
-                  "{userTranscript}"
-                </p>
-              ) : (
-                <p className="text-center text-gray-400">
-                  {activeUser
-                    ? "Start speaking to see your transcript..."
-                    : "Waiting for your response..."}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
-          <div className="flex flex-col items-center">
-            <div className="flex gap-4 mb-4">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.15)]">
+          <div className="flex flex-col items-center py-5 px-6 gap-3">
+            <div className="flex items-center gap-3">
               <AlertConfirmation stopInterview={stopInterview}>
                 <button
-                  className="p-3 rounded-full bg-red-100 text-red-600 hover:bg-red-200 shadow-sm transition-all flex items-center gap-2"
+                  className="group relative overflow-hidden flex items-center gap-2.5 rounded-xl bg-linear-to-r from-red-500 to-rose-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/25 transition-all duration-300 hover:from-red-600 hover:to-rose-700 hover:shadow-red-500/40 hover:-translate-y-0.5 cursor-pointer"
                   aria-label="End call"
+                  id="end-interview-btn"
                 >
-                  <Phone size={20} />
+                  <Phone size={16} />
                   <span>End Interview</span>
                 </button>
               </AlertConfirmation>
             </div>
 
-            <p className="text-sm text-gray-500">
-              {activeUser ? "Please respond..." : "AI is speaking..."}
+            <p className="text-xs font-medium text-slate-400">
+              {activeUser ? (
+                <span className="flex items-center gap-1.5">
+                  <Mic className="h-3 w-3 text-violet-500" />
+                  Your turn - please respond
+                </span>
+              ) : isSpeaking ? (
+                <span className="flex items-center gap-1.5">
+                  <MicOff className="h-3 w-3 text-slate-400" />
+                  AI is speaking - please wait
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  Connecting…
+                </span>
+              )}
             </p>
           </div>
         </div>
+
+        <p className="text-center text-xs font-medium text-slate-400">
+          Powered by AI interview technology • Secure and confidential
+        </p>
       </div>
+
       {isGeneratingFeedback && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              Generating Feedback
-            </h2>
-            <p className="text-gray-600">
-              Please wait while we analyze your interview...
-            </p>
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.65)] max-w-md w-full mx-4">
+            <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-blue-500 via-indigo-500 to-violet-500" />
+
+            <div className="flex flex-col items-center gap-5 px-8 py-12 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30">
+                <Loader2 className="h-7 w-7 animate-spin text-white" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-xl font-bold tracking-tight text-slate-800">
+                  Generating Feedback
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Analyzing your interview performance. This will only take a
+                  moment.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-1">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="h-2 w-2 rounded-full bg-blue-400 animate-bounce"
+                    style={{ animationDelay: `${i * 150}ms` }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
