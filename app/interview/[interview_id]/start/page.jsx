@@ -381,10 +381,10 @@ function StartInterview() {
         @keyframes waveBar {
           0%,
           100% {
-            height: 8px;
+            transform: scaleY(0.33);
           }
           50% {
-            height: 24px;
+            transform: scaleY(1);
           }
         }
         .pulse-ring {
@@ -463,30 +463,32 @@ function StartInterview() {
                 </p>
               </div>
 
-              {isSpeaking && (
-                <div
-                  className="flex items-center gap-1"
-                  aria-label="AI is speaking"
-                >
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-1 rounded-full bg-linear-to-t from-blue-600 to-indigo-400 wave-bar"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              )}
-              {!isSpeaking && !activeUser && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
-                  Idle
-                </span>
-              )}
-              {!isSpeaking && activeUser && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 subtle-pulse">
-                  Listening…
-                </span>
-              )}
+              <div className="flex items-center justify-center min-h-[28px]">
+                {isSpeaking && (
+                  <div
+                    className="flex items-center gap-1"
+                    aria-label="AI is speaking"
+                  >
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className="w-1 h-6 rounded-full bg-linear-to-t from-blue-600 to-indigo-400 wave-bar"
+                        style={{ animationDelay: `${i * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                )}
+                {!isSpeaking && !activeUser && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
+                    Idle
+                  </span>
+                )}
+                {!isSpeaking && activeUser && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 subtle-pulse">
+                    Listening…
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -539,30 +541,32 @@ function StartInterview() {
                 </p>
               </div>
 
-              {activeUser && (
-                <div
-                  className="flex items-center gap-1"
-                  aria-label="You are speaking"
-                >
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-1 rounded-full bg-linear-to-t from-violet-600 to-purple-400 wave-bar"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              )}
-              {!activeUser && isSpeaking && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
-                  Waiting for AI…
-                </span>
-              )}
-              {!activeUser && !isSpeaking && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
-                  Idle
-                </span>
-              )}
+              <div className="flex items-center justify-center min-h-[28px]">
+                {activeUser && (
+                  <div
+                    className="flex items-center gap-1"
+                    aria-label="You are speaking"
+                  >
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className="w-1 h-6 rounded-full bg-linear-to-t from-violet-600 to-purple-400 wave-bar"
+                        style={{ animationDelay: `${i * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                )}
+                {!activeUser && isSpeaking && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
+                    Waiting for AI…
+                  </span>
+                )}
+                {!activeUser && !isSpeaking && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
+                    Idle
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
