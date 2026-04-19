@@ -24,6 +24,7 @@ function StartInterview() {
   const conversation = useRef(null);
   const endedReasonRef = useRef(null);
   const feedbackRequestedRef = useRef(false);
+  const interviewInfoRef = useRef(interviewInfo);
   const { interview_id } = useParams();
   const router = useRouter();
   const [userProfile, setUserProfile] = useState({
@@ -62,6 +63,10 @@ function StartInterview() {
   }, [interviewInfo?.candidate_name]);
 
   useEffect(() => {
+    interviewInfoRef.current = interviewInfo;
+  }, [interviewInfo]);
+
+  useEffect(() => {
     if (interviewInfo && interviewInfo?.jobPosition && vapi && !start) {
       setStart(true);
       startCall();
@@ -75,23 +80,23 @@ function StartInterview() {
 
   const getEndToastMessage = (reason) => {
     if (!reason) {
-      return "Call has ended.";
+      return "The call has ended.";
     }
 
     const formattedReason = formatEndedReason(reason);
 
     switch (reason) {
       case "customer-did-not-give-microphone-permission":
-        return "Call ended because microphone permission was not granted.";
+        return "The call ended because microphone permission was not granted.";
       case "assistant-ended-call":
       case "assistant-ended-call-after-message-spoken":
       case "assistant-ended-call-with-hangup-task":
       case "assistant-said-end-call-phrase":
-        return `Call ended by the AI assistant (${formattedReason}).`;
+        return `The call was ended by the AI assistant (${formattedReason}).`;
       case "exceeded-max-duration":
-        return "Call ended because it reached the maximum duration.";
+        return "The call ended because the maximum duration was reached.";
       case "customer-ended-call":
-        return "Interview ended.";
+        return "The interview has ended.";
       default:
         return `Call ended: ${formattedReason}.`;
     }
@@ -100,7 +105,7 @@ function StartInterview() {
   const startCall = async () => {
     if (!assistantId) {
       toast.error(
-        "Vapi assistant ID is missing. Set NEXT_PUBLIC_VAPI_ASSISTANT_ID.",
+        "Vapi assistant ID is missing. Please set NEXT_PUBLIC_VAPI_ASSISTANT_ID.",
       );
       setStart(false);
       return;
@@ -127,17 +132,20 @@ function StartInterview() {
     setSubtitles("");
     setUserTranscript("");
 
-    console.log("assistantId:", assistantId);
-    console.log("assistantOverrides:", assistantOverrides);
-
-    await vapi.start(
-      assistantId,
-      assistantOverrides,
-      undefined,
-      undefined,
-      undefined,
-      { roomDeleteOnUserLeaveEnabled: false },
-    );
+    try {
+      await vapi.start(
+        assistantId,
+        assistantOverrides,
+        undefined,
+        undefined,
+        undefined,
+        { roomDeleteOnUserLeaveEnabled: false },
+      );
+    } catch (error) {
+      console.error("Failed to start Vapi call:", error);
+      toast.error("Failed to start the interview call. Please try again.");
+      setStart(false);
+    }
   };
 
   useEffect(() => {
@@ -173,7 +181,7 @@ function StartInterview() {
     };
 
     const handleCallStart = () => {
-      toast("Call started...");
+      toast("The call has started...");
       setStart(true);
     };
 
@@ -194,7 +202,7 @@ function StartInterview() {
         error?.error?.message ||
         error?.error?.errorMsg ||
         error?.message ||
-        "The interview connection ran into an error.";
+        "The interview connection encountered an error.";
       toast.error(errorMessage);
     };
 
@@ -204,7 +212,7 @@ function StartInterview() {
 
       if (!conversation.current) {
         toast.error(
-          endMessage || "Call ended before a transcript was captured.",
+          endMessage || "The call ended before a transcript could be captured.",
         );
         setStart(false);
         setIsSpeaking(false);
@@ -221,10 +229,10 @@ function StartInterview() {
       toast(
         endedReason
           ? `${endMessage} Generating feedback...`
-          : "Call has ended. Generating feedback...",
+          : "The call has ended. Generating feedback...",
       );
       setIsGeneratingFeedback(true);
-      GenerateFeedback();
+      generateFeedback();
     };
 
     vapi.on("message", handleMessage);
@@ -244,9 +252,10 @@ function StartInterview() {
     };
   }, [interview_id, router, vapi]);
 
-  const GenerateFeedback = async () => {
-    if (!interviewInfo || !conversation.current) {
-      toast.error("Interview data missing. Please restart the interview.");
+  const generateFeedback = async () => {
+    const info = interviewInfoRef.current;
+    if (!info || !conversation.current) {
+      toast.error("Interview data is missing. Please restart the interview.");
       router.replace(`/interview/${interview_id}`);
       return;
     }
@@ -256,10 +265,11 @@ function StartInterview() {
         conversation: conversation.current,
       });
 
-      const content = result?.data?.content
-        ?.replace("```json", "")
-        ?.replace("```", "")
-        ?.trim();
+      let content = result?.data?.content?.trim();
+      const jsonFenceMatch = content?.match(/```json\s*([\s\S]*?)\s*```/);
+      content = jsonFenceMatch
+        ? jsonFenceMatch[1].trim()
+        : content?.replace(/```/g, "").trim();
 
       if (!content) throw new Error("Feedback content is empty");
 
@@ -275,8 +285,8 @@ function StartInterview() {
         .from("interview_results")
         .insert([
           {
-            fullname: interviewInfo?.candidate_name,
-            email: interviewInfo?.userEmail,
+            fullname: info.candidate_name,
+            email: info.userEmail,
             interview_id,
             conversation_transcript: parsedTranscript,
             recommendations: "Not recommended",
@@ -291,10 +301,10 @@ function StartInterview() {
 
       try {
         const aiResult = await axios.post("/api/ai-model", {
-          jobPosition: interviewInfo?.jobPosition,
-          jobDescription: interviewInfo?.jobDescription,
-          duration: interviewInfo?.duration,
-          type: interviewInfo?.type,
+          jobPosition: info.jobPosition,
+          jobDescription: info.jobDescription,
+          duration: info.duration,
+          type: info.type,
         });
 
         const rawContent = aiResult?.data?.content || aiResult?.data?.Content;
@@ -324,10 +334,10 @@ function StartInterview() {
       if (typeof window !== "undefined") {
         localStorage.removeItem("interviewInfo");
       }
-      router.replace(`/interview/${interviewInfo?.interview_id}/completed`);
+      router.replace(`/interview/${info.interview_id}/completed`);
     } catch (error) {
       console.error("Feedback generation failed:", error);
-      toast.error("Failed to generate feedback");
+      toast.error("Failed to generate feedback.");
     } finally {
       setIsGeneratingFeedback(false);
     }
@@ -335,11 +345,15 @@ function StartInterview() {
 
   const stopInterview = () => {
     endedReasonRef.current = "customer-ended-call";
-    if (typeof vapi?.end === "function") {
-      vapi.end();
+    if (!vapi) {
+      toast.error("Interview connection is unavailable.");
       return;
     }
-    vapi.stop();
+    if (typeof vapi.end === "function") {
+      vapi.end();
+    } else {
+      vapi.stop();
+    }
   };
 
   return (
@@ -385,8 +399,8 @@ function StartInterview() {
       `}</style>
 
       <div className="max-w-4xl mx-auto w-full space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
               {interviewInfo?.jobPosition || "AI"} Interview
             </h1>
