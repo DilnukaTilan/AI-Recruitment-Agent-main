@@ -263,6 +263,7 @@ function StartInterview() {
     try {
       const result = await axios.post("/api/ai-feedback", {
         conversation: conversation.current,
+        interviewTypes: info.type,
       });
 
       let content = result?.data?.content?.trim();

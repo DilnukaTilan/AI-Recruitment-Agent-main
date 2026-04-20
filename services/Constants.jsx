@@ -142,23 +142,16 @@ export const FEEDBACK_PROMPT = `{{conversation}}
 Based on the above interview conversation between the assistant and the user, provide detailed feedback on the user's interview performance.
 
 **Your Task:**
-1. Rate the candidate out of 10 in each of the following categories: Technical Skills, Communication, Problem Solving, Experience, Behavioral, and Analysis.
-2. Write a concise summary of the interview in exactly 3 lines.
-3. Provide a clear hire recommendation (e.g., "Strongly Recommended", "Recommended", "Not Recommended") along with a one-line justification. Be very strict in your assessment.
+1. Rate the candidate on a scale of 0 to 10 ONLY for the following assessed categories: {{categories}}
+2. Write a concise summary of the interview in exactly 3 sentences.
+3. Provide a hire recommendation using ONLY one of these exact values: "Strongly Recommended", "Recommended", or "Not Recommended". Be very strict in your assessment. Include a one-line justification for your recommendation.
 
 **Response Format:**
 Return ONLY a valid JSON object in the following format (no additional text or markdown):
 {
   "feedback": {
-    "rating": {
-      "TechnicalSkills": 0,
-      "Communication": 0,
-      "ProblemSolving": 0,
-      "Experience": 0,
-      "Behavioral": 0,
-      "Analysis": 0
-    },
-    "summary": "Three-line summary of the interview.",
+    "rating": {{ratingSchema}},
+    "summary": "Three-sentence summary of the interview.",
     "recommendation": "Strongly Recommended | Recommended | Not Recommended",
     "recommendationMessage": "One-line justification for the recommendation."
   }
