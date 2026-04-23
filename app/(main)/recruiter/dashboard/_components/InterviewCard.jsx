@@ -299,7 +299,7 @@ function InterviewCard({ interview, onDelete }) {
           />
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5">
+        <div className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5">
           <CheckSquare className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
           <span className="flex flex-wrap items-center gap-x-1 text-[11px] text-slate-500">
             <span>
