@@ -24,6 +24,7 @@ import { supabase } from "@/services/supabaseClient";
 import { toast } from "sonner";
 import { InterviewDataContext } from "@/context/InterviewDataContext";
 import { useUser } from "@/app/provider";
+import { isCandidateAllowedForInterview } from "@/lib/interviewCandidates";
 
 function SectionLabel({ icon: Icon, label }) {
   return (
@@ -52,8 +53,10 @@ function Interview() {
   const [interviewData, setInterviewData] = useState(null);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { interviewInfo, setInterviewInfo } = useContext(InterviewDataContext);
   const router = useRouter();
   const { user } = useUser();
@@ -61,23 +64,51 @@ function Interview() {
   const GetInterviewDetails = useCallback(async () => {
     setLoading(true);
     try {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.user?.email) {
+        router.replace("/login");
+        return;
+      }
+
       const { data: Interviews, error } = await supabase
         .from("interviews")
         .select(
-          "userEmail, jobPosition, jobDescription, duration, type, questionList",
+          "userEmail, jobPosition, jobDescription, duration, type, questionList, candidateEmails",
         )
         .eq("interview_id", interview_id);
 
       if (error) throw error;
       if (!Interviews?.length) throw new Error("No interview found.");
 
-      setInterviewData(Interviews[0]);
+      const currentInterview = Interviews[0];
+
+      if (
+        !isCandidateAllowedForInterview(currentInterview, session.user.email)
+      ) {
+        setAccessDenied(true);
+        setErrorMessage("");
+        toast.error(
+          "You do not have access to this interview. Please contact your recruiter.",
+        );
+        router.replace("/candidate/dashboard");
+        return;
+      }
+
+      setAccessDenied(false);
+      setErrorMessage("");
+      setInterviewData(currentInterview);
     } catch (error) {
-      toast.error(error.message || "Failed to fetch details.");
+      const nextErrorMessage = error.message || "Failed to fetch details.";
+      setErrorMessage(nextErrorMessage);
+      toast.error(nextErrorMessage);
     } finally {
       setLoading(false);
     }
-  }, [interview_id]);
+  }, [interview_id, router]);
 
   useEffect(() => {
     if (interview_id) GetInterviewDetails();
@@ -111,6 +142,15 @@ function Interview() {
       toast.error("Your name and email are required to start the interview.");
       return;
     }
+
+    if (!isCandidateAllowedForInterview(interviewData, userEmail)) {
+      toast.error(
+        "You do not have access to this interview. Please contact your recruiter.",
+      );
+      router.replace("/candidate/dashboard");
+      return;
+    }
+
     setJoining(true);
     try {
       const newInterviewInfo = {
@@ -167,6 +207,52 @@ function Interview() {
         </div>
       </div>
     );
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+        <div className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
+          <h2 className="text-xl font-bold text-slate-800">
+            Access Restricted
+          </h2>
+          <p className="mt-2 text-sm text-slate-500">
+            Only candidates added by the recruiter can join this interview.
+          </p>
+          <Button
+            type="button"
+            onClick={() => router.push("/candidate/dashboard")}
+            className="mt-5 rounded-xl"
+          >
+            Back to Candidate Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorMessage && !interviewData) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+        <div className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)]">
+          <h2 className="text-xl font-bold text-slate-800">
+            Interview Unavailable
+          </h2>
+          <p className="mt-2 text-sm text-slate-500">{errorMessage}</p>
+          <Button
+            type="button"
+            onClick={() => router.push("/candidate/dashboard")}
+            className="mt-5 rounded-xl"
+          >
+            Back to Candidate Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!interviewData) {
+    return null;
   }
 
   return (

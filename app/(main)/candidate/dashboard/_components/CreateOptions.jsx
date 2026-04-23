@@ -13,11 +13,14 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabase } from "@/services/supabaseClient";
+import { useUser } from "@/app/provider";
+import { isCandidateAllowedForInterview } from "@/lib/interviewCandidates";
 
 function CreateOptions() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user } = useUser();
 
   const extractInterviewId = (input) => {
     const trimmed = input.trim();
@@ -36,18 +39,32 @@ function CreateOptions() {
       return;
     }
 
+    if (!user?.email) {
+      toast.error(
+        "Please sign in with your candidate account to join an interview.",
+      );
+      return;
+    }
+
     const interviewId = extractInterviewId(code);
     setLoading(true);
 
     try {
       const { data, error } = await supabase
         .from("interviews")
-        .select("interview_id")
+        .select("interview_id, candidateEmails")
         .eq("interview_id", interviewId)
         .single();
 
       if (error || !data) {
         toast.error("Invalid interview link or code. Please try again.");
+        return;
+      }
+
+      if (!isCandidateAllowedForInterview(data, user.email)) {
+        toast.error(
+          "You have not been added to this interview yet. Please contact your recruiter.",
+        );
         return;
       }
 

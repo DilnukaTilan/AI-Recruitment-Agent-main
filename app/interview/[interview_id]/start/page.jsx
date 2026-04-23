@@ -3,7 +3,13 @@
 import { InterviewDataContext } from "@/context/InterviewDataContext";
 import { Phone, Timer, Mic, MicOff, Loader2 } from "lucide-react";
 import Image from "next/image";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import AlertConfirmation from "./_components/AlertConfirmation";
 import axios from "axios";
 import TimerComponent from "./_components/TimerComponent";
@@ -11,6 +17,7 @@ import { getVapiClient } from "@/lib/vapiconfig";
 import { supabase } from "@/services/supabaseClient";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { isCandidateAllowedForInterview } from "@/lib/interviewCandidates";
 
 function StartInterview() {
   const { interviewInfo, setInterviewInfo } = useContext(InterviewDataContext);
@@ -25,6 +32,7 @@ function StartInterview() {
   const endedReasonRef = useRef(null);
   const feedbackRequestedRef = useRef(false);
   const interviewInfoRef = useRef(interviewInfo);
+  const startedRef = useRef(false);
   const { interview_id } = useParams();
   const router = useRouter();
   const [userProfile, setUserProfile] = useState({
@@ -32,6 +40,8 @@ function StartInterview() {
     name: interviewInfo?.candidate_name || "Candidate",
   });
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);
+  const [accessChecked, setAccessChecked] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     if (!interviewInfo && typeof window !== "undefined") {
@@ -56,6 +66,54 @@ function StartInterview() {
   }, [interviewInfo, interview_id, router, setInterviewInfo]);
 
   useEffect(() => {
+    const verifyAccess = async () => {
+      try {
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        if (sessionError || !session?.user?.email) {
+          setAccessDenied(true);
+          router.replace("/login");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("interviews")
+          .select("candidateEmails")
+          .eq("interview_id", interview_id)
+          .single();
+
+        if (error) throw error;
+
+        if (!isCandidateAllowedForInterview(data, session.user.email)) {
+          setAccessDenied(true);
+          localStorage.removeItem("interviewInfo");
+          toast.error(
+            "You do not have access to this interview. Please contact your recruiter.",
+          );
+          router.replace("/candidate/dashboard");
+          return;
+        }
+
+        setAccessDenied(false);
+      } catch (error) {
+        console.error("Failed to verify interview access:", error);
+        setAccessDenied(true);
+        toast.error("Failed to verify interview access.");
+        router.replace(`/interview/${interview_id}`);
+      } finally {
+        setAccessChecked(true);
+      }
+    };
+
+    if (interview_id) {
+      verifyAccess();
+    }
+  }, [interview_id, router]);
+
+  useEffect(() => {
     setUserProfile((prev) => ({
       ...prev,
       name: interviewInfo?.candidate_name || "Candidate",
@@ -67,18 +125,25 @@ function StartInterview() {
   }, [interviewInfo]);
 
   useEffect(() => {
-    if (interviewInfo && interviewInfo?.jobPosition && vapi && !start) {
+    if (
+      accessChecked &&
+      !accessDenied &&
+      interviewInfo?.jobPosition &&
+      vapi &&
+      !startedRef.current
+    ) {
+      startedRef.current = true;
       setStart(true);
       startCall();
     }
-  }, [assistantId, interviewInfo, start, vapi]);
+  }, [accessChecked, accessDenied, interviewInfo, vapi]);
 
   const formatEndedReason = (reason) => {
     if (!reason) return null;
     return reason.replaceAll("-", " ");
   };
 
-  const getEndToastMessage = (reason) => {
+  const getEndToastMessage = useCallback((reason) => {
     if (!reason) {
       return "The call has ended.";
     }
@@ -100,13 +165,14 @@ function StartInterview() {
       default:
         return `Call ended: ${formattedReason}.`;
     }
-  };
+  }, []);
 
   const startCall = async () => {
     if (!assistantId) {
       toast.error(
         "Vapi assistant ID is missing. Please set NEXT_PUBLIC_VAPI_ASSISTANT_ID.",
       );
+      startedRef.current = false;
       setStart(false);
       return;
     }
@@ -144,9 +210,100 @@ function StartInterview() {
     } catch (error) {
       console.error("Failed to start Vapi call:", error);
       toast.error("Failed to start the interview call. Please try again.");
+      startedRef.current = false;
       setStart(false);
     }
   };
+
+  const generateFeedback = useCallback(async () => {
+    const info = interviewInfoRef.current;
+    if (!info || !conversation.current) {
+      toast.error("Interview data is missing. Please restart the interview.");
+      router.replace(`/interview/${interview_id}`);
+      return;
+    }
+
+    try {
+      const result = await axios.post("/api/ai-feedback", {
+        conversation: conversation.current,
+        interviewTypes: info.type,
+      });
+
+      let content = result?.data?.content?.trim();
+      const jsonFenceMatch = content?.match(/```json\s*([\s\S]*?)\s*```/);
+      content = jsonFenceMatch
+        ? jsonFenceMatch[1].trim()
+        : content?.replace(/```/g, "").trim();
+
+      if (!content) throw new Error("Feedback content is empty");
+
+      let parsedTranscript;
+      try {
+        parsedTranscript = JSON.parse(content);
+      } catch {
+        console.error("Invalid JSON:", content);
+        throw new Error("Could not parse AI feedback JSON");
+      }
+
+      const { error: insertError } = await supabase
+        .from("interview_results")
+        .insert([
+          {
+            fullname: info.candidate_name,
+            email: info.userEmail,
+            interview_id,
+            conversation_transcript: parsedTranscript,
+            recommendations: "Not recommended",
+            completed_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (insertError) {
+        console.error("Supabase insert error:", insertError);
+        throw new Error("Insert failed");
+      }
+
+      try {
+        const aiResult = await axios.post("/api/ai-model", {
+          jobPosition: info.jobPosition,
+          jobDescription: info.jobDescription,
+          duration: info.duration,
+          type: info.type,
+        });
+
+        const rawContent = aiResult?.data?.content || aiResult?.data?.Content;
+        let newQuestions = null;
+
+        if (rawContent) {
+          const match = rawContent.match(/```json\s*([\s\S]*?)\s*```/);
+          if (match && match[1]) {
+            newQuestions = JSON.parse(match[1].trim());
+          }
+        }
+
+        if (newQuestions) {
+          await supabase
+            .from("interviews")
+            .update({ questionList: newQuestions })
+            .eq("interview_id", interview_id);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to generate or update new questions for next candidate",
+          error,
+        );
+      }
+
+      toast.success("Feedback generated successfully!");
+      localStorage.removeItem("interviewInfo");
+      router.replace(`/interview/${info.interview_id}/completed`);
+    } catch (error) {
+      console.error("Feedback generation failed:", error);
+      toast.error("Failed to generate feedback.");
+    } finally {
+      setIsGeneratingFeedback(false);
+    }
+  }, [interview_id, router]);
 
   useEffect(() => {
     if (!vapi) return;
@@ -250,99 +407,33 @@ function StartInterview() {
       vapi.off("call-end", handleCallEnd);
       vapi.off("error", handleError);
     };
-  }, [interview_id, router, vapi]);
+  }, [interview_id, router, vapi, getEndToastMessage, generateFeedback]);
 
-  const generateFeedback = async () => {
-    const info = interviewInfoRef.current;
-    if (!info || !conversation.current) {
-      toast.error("Interview data is missing. Please restart the interview.");
-      router.replace(`/interview/${interview_id}`);
-      return;
-    }
+  if (!accessChecked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.45)] max-w-md w-full">
+          <div className="flex flex-col items-center gap-5 px-8 py-16 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30">
+              <Loader2 className="h-7 w-7 animate-spin text-white" />
+            </div>
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-bold tracking-tight text-slate-800">
+                Verifying Access
+              </h2>
+              <p className="text-sm text-slate-500">
+                Confirming that you are allowed to join this interview.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      const result = await axios.post("/api/ai-feedback", {
-        conversation: conversation.current,
-        interviewTypes: info.type,
-      });
-
-      let content = result?.data?.content?.trim();
-      const jsonFenceMatch = content?.match(/```json\s*([\s\S]*?)\s*```/);
-      content = jsonFenceMatch
-        ? jsonFenceMatch[1].trim()
-        : content?.replace(/```/g, "").trim();
-
-      if (!content) throw new Error("Feedback content is empty");
-
-      let parsedTranscript;
-      try {
-        parsedTranscript = JSON.parse(content);
-      } catch {
-        console.error("Invalid JSON:", content);
-        throw new Error("Could not parse AI feedback JSON");
-      }
-
-      const { error: insertError } = await supabase
-        .from("interview_results")
-        .insert([
-          {
-            fullname: info.candidate_name,
-            email: info.userEmail,
-            interview_id,
-            conversation_transcript: parsedTranscript,
-            recommendations: "Not recommended",
-            completed_at: new Date().toISOString(),
-          },
-        ]);
-
-      if (insertError) {
-        console.error("Supabase insert error:", insertError);
-        throw new Error("Insert failed");
-      }
-
-      try {
-        const aiResult = await axios.post("/api/ai-model", {
-          jobPosition: info.jobPosition,
-          jobDescription: info.jobDescription,
-          duration: info.duration,
-          type: info.type,
-        });
-
-        const rawContent = aiResult?.data?.content || aiResult?.data?.Content;
-        let newQuestions = null;
-
-        if (rawContent) {
-          const match = rawContent.match(/```json\s*([\s\S]*?)\s*```/);
-          if (match && match[1]) {
-            newQuestions = JSON.parse(match[1].trim());
-          }
-        }
-
-        if (newQuestions) {
-          await supabase
-            .from("interviews")
-            .update({ questionList: newQuestions })
-            .eq("interview_id", interview_id);
-        }
-      } catch (error) {
-        console.error(
-          "Failed to generate or update new questions for next candidate",
-          error,
-        );
-      }
-
-      toast.success("Feedback generated successfully!");
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("interviewInfo");
-      }
-      router.replace(`/interview/${info.interview_id}/completed`);
-    } catch (error) {
-      console.error("Feedback generation failed:", error);
-      toast.error("Failed to generate feedback.");
-    } finally {
-      setIsGeneratingFeedback(false);
-    }
-  };
+  if (accessDenied) {
+    return null;
+  }
 
   const stopInterview = () => {
     endedReasonRef.current = "customer-ended-call";
@@ -350,10 +441,10 @@ function StartInterview() {
       toast.error("Interview connection is unavailable.");
       return;
     }
-    if (typeof vapi.end === "function") {
-      vapi.end();
-    } else {
+    if (typeof vapi.stop === "function") {
       vapi.stop();
+    } else if (typeof vapi.end === "function") {
+      vapi.end();
     }
   };
 

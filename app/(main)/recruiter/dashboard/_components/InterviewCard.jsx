@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
   Calendar,
@@ -36,6 +36,8 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/services/supabaseClient";
 import { useUser } from "@/app/provider";
+import InterviewCandidateList from "./InterviewCandidateList";
+import { getInterviewCandidateEmails } from "@/lib/interviewCandidates";
 
 const GmailIcon = ({ className }) => (
   <Image
@@ -115,6 +117,13 @@ function StatPill({ icon: Icon, value, label, iconColor, bgFrom, bgTo }) {
 function InterviewCard({ interview, onDelete }) {
   const { user } = useUser();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [candidateEmails, setCandidateEmails] = useState(() =>
+    getInterviewCandidateEmails(interview),
+  );
+
+  useEffect(() => {
+    setCandidateEmails(getInterviewCandidateEmails(interview));
+  }, [interview]);
 
   const interviewUrl = useMemo(() => {
     const hostUrl =
@@ -245,8 +254,15 @@ function InterviewCard({ interview, onDelete }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_40px_-8px_rgba(79,70,229,0.18)] hover:border-indigo-200/70">
+      <InterviewCandidateList
+        interviewId={interview?.interview_id}
+        ownerEmail={user?.email || interview?.userEmail}
+        interviewTitle={interviewTitle}
+        initialCandidateEmails={candidateEmails}
+        onCandidatesChange={setCandidateEmails}
+      />
       <div className="flex flex-1 flex-col gap-4 p-5">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 pr-14">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 transition-transform duration-300 group-hover:scale-105">
             <Briefcase className="h-5 w-5" />
           </div>
@@ -285,9 +301,18 @@ function InterviewCard({ interview, onDelete }) {
 
         <div className="flex items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5">
           <CheckSquare className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-          <span className="text-[11px] text-slate-500">
-            Expires&nbsp;
-            <span className="font-semibold text-slate-700">{expiresAt}</span>
+          <span className="flex flex-wrap items-center gap-x-1 text-[11px] text-slate-500">
+            <span>
+              Expires&nbsp;
+              <span className="font-semibold text-slate-700">{expiresAt}</span>
+            </span>
+            <span className="text-slate-300">•</span>
+            <span>
+              <span className="font-semibold text-slate-700">
+                {candidateEmails.length}
+              </span>{" "}
+              allowed candidate{candidateEmails.length === 1 ? "" : "s"}
+            </span>
           </span>
         </div>
 

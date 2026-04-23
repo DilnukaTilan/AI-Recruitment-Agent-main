@@ -311,6 +311,7 @@ function QuestionList({
         .insert([
           {
             ...formData,
+            candidateEmails: [],
             questionList: questionList,
             userEmail: user?.email,
             interview_id: interview_id,
