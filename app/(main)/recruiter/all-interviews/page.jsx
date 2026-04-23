@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import { useUser } from "@/app/provider";
-import InterviewCard from "./InterviewCard";
+import InterviewCard from "../dashboard/_components/InterviewCard";
 
 function LatestInterviewsList() {
   const router = useRouter();
@@ -23,8 +23,7 @@ function LatestInterviewsList() {
       .from("interviews")
       .select("*")
       .eq("userEmail", user?.email)
-      .order("created_at", { ascending: false })
-      .limit(3);
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Failed to fetch interviews:", error);
@@ -77,10 +76,15 @@ function LatestInterviewsList() {
   };
 
   return (
-    <div>
-      <h3 className="text-lg font-bold text-gray-900 mb-5">
-        Previously Created Interviews
-      </h3>
+    <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
+      <div className="flex flex-col gap-1 border-b pb-4">
+        <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          All Interviews
+        </h2>
+        <p className="text-gray-500">
+          Here are all the interviews you've created.
+        </p>
+      </div>
 
       {interviewList?.length === 0 ? (
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-10 text-center shadow-[0_4px_20px_-4px_rgba(15,23,42,0.08)]">
