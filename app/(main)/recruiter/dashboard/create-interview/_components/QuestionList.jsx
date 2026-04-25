@@ -311,6 +311,7 @@ function QuestionList({
         .insert([
           {
             ...formData,
+            candidateAccessList: [],
             candidateEmails: [],
             questionList: questionList,
             userEmail: user?.email,

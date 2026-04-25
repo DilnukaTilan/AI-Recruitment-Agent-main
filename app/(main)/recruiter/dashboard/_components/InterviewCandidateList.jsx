@@ -5,6 +5,8 @@ import { Loader2, MailPlus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +19,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/services/supabaseClient";
 import {
-  normalizeCandidateEmails,
+  DEFAULT_CANDIDATE_MAX_JOINS,
+  normalizeCandidateAccessList,
+  normalizeCandidateJoinLimit,
   splitCandidateEmails,
 } from "@/lib/interviewCandidates";
 
@@ -25,25 +29,26 @@ function InterviewCandidateList({
   interviewId,
   ownerEmail,
   interviewTitle,
-  initialCandidateEmails,
+  initialCandidateAccessList,
   onCandidatesChange,
 }) {
-  const normalizedInitialEmails = useMemo(
-    () => normalizeCandidateEmails(initialCandidateEmails),
-    [initialCandidateEmails],
+  const normalizedInitialAccessList = useMemo(
+    () => normalizeCandidateAccessList(initialCandidateAccessList),
+    [initialCandidateAccessList],
   );
-  const [candidateEmails, setCandidateEmails] = useState(
-    normalizedInitialEmails,
+  const [candidateAccessList, setCandidateAccessList] = useState(
+    normalizedInitialAccessList,
   );
   const [emailInput, setEmailInput] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setCandidateEmails(normalizedInitialEmails);
-  }, [normalizedInitialEmails]);
+    setCandidateAccessList(normalizedInitialAccessList);
+  }, [normalizedInitialAccessList]);
 
   const hasChanges =
-    JSON.stringify(candidateEmails) !== JSON.stringify(normalizedInitialEmails);
+    JSON.stringify(candidateAccessList) !==
+    JSON.stringify(normalizedInitialAccessList);
 
   const handleAddEmails = () => {
     const rawEntries = splitCandidateEmails(emailInput);
@@ -52,18 +57,27 @@ function InterviewCandidateList({
       return;
     }
 
-    const normalizedEntries = normalizeCandidateEmails(rawEntries);
+    const existingEmails = new Set(
+      candidateAccessList.map((entry) => entry.email),
+    );
+    const normalizedEntries = normalizeCandidateAccessList(rawEntries)
+      .filter((entry) => !existingEmails.has(entry.email))
+      .map((entry) => ({
+        ...entry,
+        maxJoins: DEFAULT_CANDIDATE_MAX_JOINS,
+      }));
+
     if (normalizedEntries.length === 0) {
       toast.error("Please enter valid email addresses.");
       return;
     }
 
-    const nextEmails = normalizeCandidateEmails([
-      ...candidateEmails,
+    const nextAccessList = normalizeCandidateAccessList([
+      ...candidateAccessList,
       ...normalizedEntries,
     ]);
 
-    setCandidateEmails(nextEmails);
+    setCandidateAccessList(nextAccessList);
     setEmailInput("");
 
     if (normalizedEntries.length !== rawEntries.length) {
@@ -79,8 +93,21 @@ function InterviewCandidateList({
   };
 
   const handleRemoveEmail = (emailToRemove) => {
-    setCandidateEmails((currentEmails) =>
-      currentEmails.filter((email) => email !== emailToRemove),
+    setCandidateAccessList((currentEntries) =>
+      currentEntries.filter((entry) => entry.email !== emailToRemove),
+    );
+  };
+
+  const handleUpdateMaxJoins = (emailToUpdate, value) => {
+    setCandidateAccessList((currentEntries) =>
+      currentEntries.map((entry) =>
+        entry.email === emailToUpdate
+          ? {
+              ...entry,
+              maxJoins: normalizeCandidateJoinLimit(value),
+            }
+          : entry,
+      ),
     );
   };
 
@@ -94,9 +121,14 @@ function InterviewCandidateList({
 
     setSaving(true);
     try {
+      const candidateEmails = candidateAccessList.map(({ email }) => email);
+
       let updateQuery = supabase
         .from("interviews")
-        .update({ candidateEmails })
+        .update({
+          candidateEmails,
+          candidateAccessList,
+        })
         .eq("interview_id", interviewId);
 
       if (ownerEmail) {
@@ -107,10 +139,10 @@ function InterviewCandidateList({
 
       if (error) throw error;
 
-      onCandidatesChange?.(candidateEmails);
+      onCandidatesChange?.(candidateAccessList);
       toast.success("Candidate access list saved.");
     } catch (error) {
-      console.error("Failed to update candidate emails:", error);
+      console.error("Failed to update candidate access list:", error);
       toast.error("Failed to save candidate access list. Please try again.");
     } finally {
       setSaving(false);
@@ -131,7 +163,7 @@ function InterviewCandidateList({
           <span className="sr-only">Manage interview candidates</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-2xl rounded-2xl">
         <DialogHeader>
           <DialogTitle>Candidate Access List</DialogTitle>
           <DialogDescription>
@@ -139,7 +171,8 @@ function InterviewCandidateList({
             <span className="font-semibold text-slate-700">
               {interviewTitle}
             </span>
-            . Only these candidates will be able to start this interview.
+            . Only these candidates will be able to start this interview, and
+            you can control how many times each saved candidate may join.
           </DialogDescription>
         </DialogHeader>
 
@@ -161,12 +194,12 @@ function InterviewCandidateList({
                 placeholder={"candidate1@example.com\ncandidate2@example.com"}
                 className="rounded-xl border-slate-200 bg-white"
               />
-              <div className="flex justify-end">
+              <div className="flex justify-center sm:justify-end">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleAddEmails}
-                  className="rounded-xl border-slate-200 text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                  className="w-auto rounded-xl border-slate-200 text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                 >
                   <MailPlus className="h-4 w-4" />
                   Add Emails
@@ -181,36 +214,67 @@ function InterviewCandidateList({
                 Current candidate list
               </h4>
               <Badge className="bg-slate-100 text-slate-700">
-                {candidateEmails.length} candidate
-                {candidateEmails.length === 1 ? "" : "s"}
+                {candidateAccessList.length} candidate
+                {candidateAccessList.length === 1 ? "" : "s"}
               </Badge>
             </div>
 
-            {candidateEmails.length === 0 ? (
+            {candidateAccessList.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
                 No candidates added yet. Until you save at least one email,
                 nobody will be able to join this interview.
               </div>
             ) : (
               <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
-                {candidateEmails.map((email) => (
+                {candidateAccessList.map((candidate) => (
                   <div
-                    key={email}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"
+                    key={candidate.email}
+                    className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <span className="min-w-0 truncate text-sm text-slate-700">
-                      {email}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveEmail(email)}
-                      className="shrink-0 rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500"
-                      title={`Remove ${email}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="min-w-0 flex-1">
+                      <p className="break-all text-sm text-slate-700">
+                        {candidate.email}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Default allowed joins: {DEFAULT_CANDIDATE_MAX_JOINS}
+                      </p>
+                    </div>
+
+                    <div className="flex items-end justify-between gap-3 sm:justify-end">
+                      <div className="w-24 shrink-0">
+                        <Label
+                          htmlFor={`max-joins-${candidate.email}`}
+                          className="mb-1 text-xs text-slate-500"
+                        >
+                          Joins
+                        </Label>
+                        <Input
+                          id={`max-joins-${candidate.email}`}
+                          type="number"
+                          min="1"
+                          step="1"
+                          value={candidate.maxJoins}
+                          onChange={(event) =>
+                            handleUpdateMaxJoins(
+                              candidate.email,
+                              event.target.value,
+                            )
+                          }
+                          className="rounded-xl border-slate-200 bg-slate-50 text-sm"
+                        />
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveEmail(candidate.email)}
+                        className="shrink-0 rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500"
+                        title={`Remove ${candidate.email}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -223,7 +287,7 @@ function InterviewCandidateList({
             type="button"
             onClick={handleSave}
             disabled={saving || !hasChanges}
-            className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white cursor-pointer"
+            className="w-full sm:w-auto rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white cursor-pointer"
           >
             {saving ? (
               <>

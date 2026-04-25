@@ -17,7 +17,10 @@ import { getVapiClient } from "@/lib/vapiconfig";
 import { supabase } from "@/services/supabaseClient";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { isCandidateAllowedForInterview } from "@/lib/interviewCandidates";
+import {
+  hasCandidateRemainingJoins,
+  isCandidateAllowedForInterview,
+} from "@/lib/interviewCandidates";
 
 function StartInterview() {
   const { interviewInfo, setInterviewInfo } = useContext(InterviewDataContext);
@@ -81,7 +84,7 @@ function StartInterview() {
 
         const { data, error } = await supabase
           .from("interviews")
-          .select("candidateEmails")
+          .select("candidateEmails, candidateAccessList")
           .eq("interview_id", interview_id)
           .single();
 
@@ -92,6 +95,24 @@ function StartInterview() {
           localStorage.removeItem("interviewInfo");
           toast.error(
             "You do not have access to this interview. Please contact your recruiter.",
+          );
+          router.replace("/candidate/dashboard");
+          return;
+        }
+
+        const { count, error: resultsError } = await supabase
+          .from("interview_results")
+          .select("*", { count: "exact", head: true })
+          .eq("interview_id", interview_id)
+          .eq("email", session.user.email);
+
+        if (resultsError) throw resultsError;
+
+        if (!hasCandidateRemainingJoins(data, session.user.email, count ?? 0)) {
+          setAccessDenied(true);
+          localStorage.removeItem("interviewInfo");
+          toast.error(
+            "You have already used all allowed interview attempts for this link.",
           );
           router.replace("/candidate/dashboard");
           return;

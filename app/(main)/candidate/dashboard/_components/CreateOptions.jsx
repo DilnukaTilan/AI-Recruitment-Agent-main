@@ -14,7 +14,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabase } from "@/services/supabaseClient";
 import { useUser } from "@/app/provider";
-import { isCandidateAllowedForInterview } from "@/lib/interviewCandidates";
+import {
+  hasCandidateRemainingJoins,
+  isCandidateAllowedForInterview,
+} from "@/lib/interviewCandidates";
 
 function CreateOptions() {
   const [code, setCode] = useState("");
@@ -52,7 +55,7 @@ function CreateOptions() {
     try {
       const { data, error } = await supabase
         .from("interviews")
-        .select("interview_id, candidateEmails")
+        .select("interview_id, candidateEmails, candidateAccessList")
         .eq("interview_id", interviewId)
         .single();
 
@@ -64,6 +67,21 @@ function CreateOptions() {
       if (!isCandidateAllowedForInterview(data, user.email)) {
         toast.error(
           "You have not been added to this interview yet. Please contact your recruiter.",
+        );
+        return;
+      }
+
+      const { count, error: resultsError } = await supabase
+        .from("interview_results")
+        .select("*", { count: "exact", head: true })
+        .eq("interview_id", interviewId)
+        .eq("email", user.email);
+
+      if (resultsError) throw resultsError;
+
+      if (!hasCandidateRemainingJoins(data, user.email, count ?? 0)) {
+        toast.error(
+          "You have already used all allowed interview attempts for this link.",
         );
         return;
       }

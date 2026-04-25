@@ -24,7 +24,10 @@ import { supabase } from "@/services/supabaseClient";
 import { toast } from "sonner";
 import { InterviewDataContext } from "@/context/InterviewDataContext";
 import { useUser } from "@/app/provider";
-import { isCandidateAllowedForInterview } from "@/lib/interviewCandidates";
+import {
+  hasCandidateRemainingJoins,
+  isCandidateAllowedForInterview,
+} from "@/lib/interviewCandidates";
 
 function SectionLabel({ icon: Icon, label }) {
   return (
@@ -77,7 +80,7 @@ function Interview() {
       const { data: Interviews, error } = await supabase
         .from("interviews")
         .select(
-          "userEmail, jobPosition, jobDescription, duration, type, questionList, candidateEmails",
+          "userEmail, jobPosition, jobDescription, duration, type, questionList, candidateEmails, candidateAccessList",
         )
         .eq("interview_id", interview_id);
 
@@ -93,6 +96,30 @@ function Interview() {
         setErrorMessage("");
         toast.error(
           "You do not have access to this interview. Please contact your recruiter.",
+        );
+        router.replace("/candidate/dashboard");
+        return;
+      }
+
+      const { count, error: resultsError } = await supabase
+        .from("interview_results")
+        .select("*", { count: "exact", head: true })
+        .eq("interview_id", interview_id)
+        .eq("email", session.user.email);
+
+      if (resultsError) throw resultsError;
+
+      if (
+        !hasCandidateRemainingJoins(
+          currentInterview,
+          session.user.email,
+          count ?? 0,
+        )
+      ) {
+        setAccessDenied(true);
+        setErrorMessage("");
+        toast.error(
+          "You have already used all allowed interview attempts for this link.",
         );
         router.replace("/candidate/dashboard");
         return;

@@ -37,7 +37,7 @@ import {
 import { supabase } from "@/services/supabaseClient";
 import { useUser } from "@/app/provider";
 import InterviewCandidateList from "./InterviewCandidateList";
-import { getInterviewCandidateEmails } from "@/lib/interviewCandidates";
+import { getInterviewCandidateAccessList } from "@/lib/interviewCandidates";
 
 const GmailIcon = ({ className }) => (
   <Image
@@ -117,12 +117,12 @@ function StatPill({ icon: Icon, value, label, iconColor, bgFrom, bgTo }) {
 function InterviewCard({ interview, onDelete }) {
   const { user } = useUser();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [candidateEmails, setCandidateEmails] = useState(() =>
-    getInterviewCandidateEmails(interview),
+  const [candidateAccessList, setCandidateAccessList] = useState(() =>
+    getInterviewCandidateAccessList(interview),
   );
 
   useEffect(() => {
-    setCandidateEmails(getInterviewCandidateEmails(interview));
+    setCandidateAccessList(getInterviewCandidateAccessList(interview));
   }, [interview]);
 
   const interviewUrl = useMemo(() => {
@@ -258,8 +258,8 @@ function InterviewCard({ interview, onDelete }) {
         interviewId={interview?.interview_id}
         ownerEmail={user?.email || interview?.userEmail}
         interviewTitle={interviewTitle}
-        initialCandidateEmails={candidateEmails}
-        onCandidatesChange={setCandidateEmails}
+        initialCandidateAccessList={candidateAccessList}
+        onCandidatesChange={setCandidateAccessList}
       />
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div className="flex items-start gap-3 pr-14">
@@ -309,9 +309,9 @@ function InterviewCard({ interview, onDelete }) {
             <span className="text-slate-300">•</span>
             <span>
               <span className="font-semibold text-slate-700">
-                {candidateEmails.length}
+                {candidateAccessList.length}
               </span>{" "}
-              allowed candidate{candidateEmails.length === 1 ? "" : "s"}
+              allowed candidate{candidateAccessList.length === 1 ? "" : "s"}
             </span>
           </span>
         </div>
