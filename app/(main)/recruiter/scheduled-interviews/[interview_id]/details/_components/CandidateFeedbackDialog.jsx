@@ -93,7 +93,7 @@ function ScoreRing({ score, label, delay = 0 }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 + delay * 0.06, duration: 0.35 }}
-      className="group flex flex-col items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-4 py-4 transition-all duration-200 hover:border-slate-300 hover:shadow-md"
+      className="group flex flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-white px-2 py-3 sm:px-4 sm:py-4 transition-all duration-200 hover:border-slate-300 hover:shadow-md"
     >
       <div className="relative h-[76px] w-[76px]">
         <svg viewBox="0 0 76 76" className="h-full w-full -rotate-90">
@@ -138,7 +138,7 @@ function ScoreRing({ score, label, delay = 0 }) {
           </motion.span>
         </div>
       </div>
-      <p className="max-w-[100px] text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400 transition-colors group-hover:text-slate-600">
+      <p className="max-w-[80px] sm:max-w-[100px] text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 transition-colors group-hover:text-slate-600">
         {label}
       </p>
     </motion.div>
@@ -151,7 +151,7 @@ function SectionCard({ icon: Icon, iconColor, title, delay = 0, children }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35 }}
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md"
+      className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm transition-shadow duration-200 hover:shadow-md"
     >
       <div className="flex items-center gap-2.5">
         <span
@@ -180,7 +180,7 @@ function CandidateFeedbackDialog({ candidate, interviewTitle }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="group/btn relative overflow-hidden rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-8 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:from-indigo-600 hover:to-blue-500 hover:shadow-2xl hover:shadow-indigo-500/40 cursor-pointer">
+        <Button className="group/btn relative overflow-hidden rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-4 sm:px-8 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:from-indigo-600 hover:to-blue-500 hover:shadow-2xl hover:shadow-indigo-500/40 cursor-pointer">
           <span className="relative flex items-center gap-2">
             <FileText className="h-4 w-4" />
             View Report
@@ -189,14 +189,14 @@ function CandidateFeedbackDialog({ candidate, interviewTitle }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl overflow-hidden rounded-2xl border-slate-200 p-0 shadow-2xl shadow-slate-900/10">
-        <div className="relative overflow-hidden border-b border-slate-100 bg-linear-to-br from-blue-50 via-white to-indigo-50 px-6 py-6">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-3xl overflow-hidden rounded-2xl border-slate-200 p-0 shadow-2xl shadow-slate-900/10">
+        <div className="relative overflow-hidden border-b border-slate-100 bg-linear-to-br from-blue-50 via-white to-indigo-50 px-4 py-4 sm:px-6 sm:py-6">
           <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
           <div className="pointer-events-none absolute -left-8 bottom-0 h-28 w-28 rounded-full bg-indigo-100/40 blur-2xl" />
 
           <DialogHeader className="relative z-10">
-            <div className="flex items-start gap-4">
-              <Avatar className="h-12 w-12 shrink-0 rounded-full shadow-lg shadow-blue-500/25">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 self-center sm:self-auto rounded-full shadow-lg shadow-blue-500/25">
                 {candidate?.picture ? (
                   <AvatarImage
                     src={candidate.picture}
@@ -210,7 +210,7 @@ function CandidateFeedbackDialog({ candidate, interviewTitle }) {
               </Avatar>
 
               <div className="min-w-0 flex-1">
-                <DialogTitle className="text-xl font-bold tracking-tight text-slate-900">
+                <DialogTitle className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
                   {candidate?.name || "Candidate"} Report
                 </DialogTitle>
                 <DialogDescription className="mt-1 text-sm text-slate-500">
@@ -221,7 +221,7 @@ function CandidateFeedbackDialog({ candidate, interviewTitle }) {
           </DialogHeader>
         </div>
 
-        <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-6">
+        <div className="max-h-[60vh] sm:max-h-[70vh] space-y-4 sm:space-y-5 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -284,7 +284,7 @@ function CandidateFeedbackDialog({ candidate, interviewTitle }) {
               title="Performance Ratings"
               delay={0.15}
             >
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {ratings.map(([category, score], i) => (
                   <ScoreRing
                     key={category}
@@ -337,7 +337,7 @@ function CandidateFeedbackDialog({ candidate, interviewTitle }) {
               title="Raw Report Data"
               delay={0.15}
             >
-              <pre className="overflow-x-auto rounded-xl bg-slate-950 p-4 text-xs leading-6 text-slate-100 shadow-inner">
+              <pre className="overflow-x-auto whitespace-pre-wrap break-all rounded-xl bg-slate-950 p-3 sm:p-4 text-xs leading-6 text-slate-100 shadow-inner">
                 {rawPayload}
               </pre>
             </SectionCard>
