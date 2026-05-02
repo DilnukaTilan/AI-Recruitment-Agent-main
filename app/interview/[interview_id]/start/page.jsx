@@ -30,6 +30,7 @@ function StartInterview() {
   const [start, setStart] = useState(false);
   const [subtitles, setSubtitles] = useState("");
   const [userTranscript, setUserTranscript] = useState("");
+  const [transcriptMessages, setTranscriptMessages] = useState([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const conversation = useRef(null);
   const endedReasonRef = useRef(null);
@@ -218,6 +219,7 @@ function StartInterview() {
     feedbackRequestedRef.current = false;
     setSubtitles("");
     setUserTranscript("");
+    setTranscriptMessages([]);
 
     try {
       await vapi.start(
@@ -343,18 +345,101 @@ function StartInterview() {
         setSubtitles(message.content);
       }
 
-      if (
-        message?.type === "transcript" &&
-        message?.role === "user" &&
-        message?.transcript
-      ) {
-        setUserTranscript(message.transcript);
+      const transcriptRole =
+        message?.role === "assistant" || message?.role === "user"
+          ? message.role
+          : null;
+      const transcriptText = message?.transcript?.trim();
+
+      if (message?.type === "transcript" && transcriptRole && transcriptText) {
+        const isFinalTranscript =
+          message?.transcriptType === "final" ||
+          message?.transcriptType === "finalTranscript" ||
+          message?.isFinal === true;
+
+        if (transcriptRole === "assistant") {
+          setSubtitles(transcriptText);
+        }
+
+        if (transcriptRole === "user") {
+          setUserTranscript(transcriptText);
+        }
+
+        setTranscriptMessages((prevMessages) => {
+          const lastMessage = prevMessages[prevMessages.length - 1];
+
+          if (
+            lastMessage &&
+            lastMessage.role === transcriptRole &&
+            lastMessage.text === transcriptText
+          ) {
+            if (lastMessage.isFinal === isFinalTranscript) {
+              return prevMessages;
+            }
+
+            return prevMessages.map((item, index) =>
+              index === prevMessages.length - 1
+                ? { ...item, isFinal: isFinalTranscript }
+                : item,
+            );
+          }
+
+          if (
+            lastMessage &&
+            lastMessage.role === transcriptRole &&
+            !lastMessage.isFinal
+          ) {
+            return prevMessages.map((item, index) =>
+              index === prevMessages.length - 1
+                ? {
+                    ...item,
+                    text: transcriptText,
+                    isFinal: isFinalTranscript,
+                  }
+                : item,
+            );
+          }
+
+          return [
+            ...prevMessages,
+            {
+              id: `${Date.now()}-${transcriptRole}-${prevMessages.length}`,
+              role: transcriptRole,
+              text: transcriptText,
+              isFinal: isFinalTranscript,
+            },
+          ];
+        });
       }
 
       if (message?.conversation) {
         const filteredConversation =
           message.conversation.filter((msg) => msg.role !== "system") || [];
         conversation.current = JSON.stringify(filteredConversation, null, 2);
+
+        const conversationTranscript = filteredConversation
+          .map((msg, index) => {
+            const role =
+              msg.role === "assistant" || msg.role === "user" ? msg.role : null;
+            const text =
+              typeof msg.content === "string" ? msg.content.trim() : "";
+
+            if (!role || !text) {
+              return null;
+            }
+
+            return {
+              id: `conversation-${index}-${role}`,
+              role,
+              text,
+              isFinal: true,
+            };
+          })
+          .filter(Boolean);
+
+        if (conversationTranscript.length > 0) {
+          setTranscriptMessages(conversationTranscript);
+        }
       }
     };
 
@@ -738,6 +823,63 @@ function StartInterview() {
                     {activeUser
                       ? "Speak now — your transcript will appear here…"
                       : "Waiting for your response…"}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Conversation
+                </span>
+                {transcriptMessages.length > 0 && (
+                  <span className="text-[11px] font-medium text-slate-400">
+                    {transcriptMessages.length} turn
+                    {transcriptMessages.length === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
+
+              <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
+                {transcriptMessages.length > 0 ? (
+                  transcriptMessages.map((item) => {
+                    const isAssistant = item.role === "assistant";
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
+                      >
+                        <div
+                          className={`max-w-[92%] rounded-xl border px-3.5 py-2.5 ${
+                            isAssistant
+                              ? "border-blue-100 bg-white text-slate-700"
+                              : "border-violet-100 bg-white text-slate-700"
+                          }`}
+                        >
+                          <div className="mb-1 flex items-center gap-2">
+                            <span
+                              className={`text-[11px] font-bold uppercase tracking-wide ${
+                                isAssistant
+                                  ? "text-blue-700"
+                                  : "text-violet-700"
+                              }`}
+                            >
+                              {isAssistant ? "Assistant" : "You"}
+                            </span>
+                            {!item.isFinal && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            )}
+                          </div>
+                          <p className="text-sm leading-relaxed">{item.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-sm text-slate-400 italic">
+                    Transcript turns will appear here as the interview begins.
                   </p>
                 )}
               </div>

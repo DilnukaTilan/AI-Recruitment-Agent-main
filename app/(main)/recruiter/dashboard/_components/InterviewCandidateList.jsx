@@ -290,28 +290,20 @@ function InterviewCandidateList({
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline gap-1">
-                        <span className="shrink-0 text-xs font-medium tracking-wide text-slate-500">
+                        <span className="shrink-0 text-xs uppercase font-medium tracking-wide text-slate-500">
                           Candidate Name:
                         </span>
-                        <span className="text-sm text-slate-700">
+                        <span className="text-sm font-semibold text-slate-700">
                           {candidateNamesByEmail[candidate.email] ||
                             "Not found"}
                         </span>
                       </div>
                       <div className="mt-1 flex items-baseline gap-1">
-                        <span className="shrink-0 text-xs font-medium tracking-wide text-slate-500">
+                        <span className="shrink-0 text-xs uppercase font-medium tracking-wide text-slate-500">
                           Email:
                         </span>
-                        <span className="text-sm text-slate-700">
+                        <span className="text-sm font-semibold text-slate-700">
                           {candidate.email}
-                        </span>
-                      </div>
-                      <div className="mt-1 flex items-baseline gap-1">
-                        <span className="shrink-0 text-xs font-medium tracking-wide text-slate-500">
-                          Default Allowed Joins:
-                        </span>
-                        <span className="text-sm text-slate-700">
-                          {DEFAULT_CANDIDATE_MAX_JOINS}
                         </span>
                       </div>
                     </div>
