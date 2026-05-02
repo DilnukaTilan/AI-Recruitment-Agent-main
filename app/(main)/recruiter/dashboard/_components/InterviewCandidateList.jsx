@@ -22,8 +22,23 @@ import {
   DEFAULT_CANDIDATE_MAX_JOINS,
   normalizeCandidateAccessList,
   normalizeCandidateJoinLimit,
+  normalizeEmail,
   splitCandidateEmails,
 } from "@/lib/interviewCandidates";
+
+function buildCandidateNameMap(userRows = []) {
+  return userRows.reduce((accumulator, userRecord) => {
+    const email = normalizeEmail(userRecord?.email);
+    const name = userRecord?.name?.trim();
+
+    if (!email || !name) {
+      return accumulator;
+    }
+
+    accumulator[email] = name;
+    return accumulator;
+  }, {});
+}
 
 function InterviewCandidateList({
   interviewId,
@@ -39,12 +54,54 @@ function InterviewCandidateList({
   const [candidateAccessList, setCandidateAccessList] = useState(
     normalizedInitialAccessList,
   );
+  const [candidateNamesByEmail, setCandidateNamesByEmail] = useState({});
   const [emailInput, setEmailInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const candidateEmails = useMemo(
+    () =>
+      candidateAccessList.map((candidate) => normalizeEmail(candidate.email)),
+    [candidateAccessList],
+  );
+  const candidateEmailsKey = useMemo(
+    () => candidateEmails.join("|"),
+    [candidateEmails],
+  );
 
   useEffect(() => {
     setCandidateAccessList(normalizedInitialAccessList);
   }, [normalizedInitialAccessList]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const fetchCandidateNames = async () => {
+      if (candidateEmails.length === 0) {
+        setCandidateNamesByEmail({});
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("users")
+        .select("email, name")
+        .in("email", candidateEmails);
+
+      if (!isActive) return;
+
+      if (error) {
+        console.error("Failed to fetch candidate names:", error);
+        setCandidateNamesByEmail({});
+        return;
+      }
+
+      setCandidateNamesByEmail(buildCandidateNameMap(data));
+    };
+
+    fetchCandidateNames();
+
+    return () => {
+      isActive = false;
+    };
+  }, [candidateEmailsKey]);
 
   const hasChanges =
     JSON.stringify(candidateAccessList) !==
@@ -232,12 +289,31 @@ function InterviewCandidateList({
                     className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="break-all text-sm text-slate-700">
-                        {candidate.email}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Default allowed joins: {DEFAULT_CANDIDATE_MAX_JOINS}
-                      </p>
+                      <div className="flex items-baseline gap-1">
+                        <span className="shrink-0 text-xs font-medium tracking-wide text-slate-500">
+                          Candidate Name:
+                        </span>
+                        <span className="text-sm text-slate-700">
+                          {candidateNamesByEmail[candidate.email] ||
+                            "Not found"}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span className="shrink-0 text-xs font-medium tracking-wide text-slate-500">
+                          Email:
+                        </span>
+                        <span className="text-sm text-slate-700">
+                          {candidate.email}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span className="shrink-0 text-xs font-medium tracking-wide text-slate-500">
+                          Default Allowed Joins:
+                        </span>
+                        <span className="text-sm text-slate-700">
+                          {DEFAULT_CANDIDATE_MAX_JOINS}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-end justify-between gap-3 sm:justify-end">
