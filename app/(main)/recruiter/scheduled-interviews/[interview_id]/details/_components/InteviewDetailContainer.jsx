@@ -171,7 +171,7 @@ function InteviewDetailContainer({ interview, summary }) {
               </h4>
             </div>
             <div className="mt-4 rounded-xl bg-slate-50/80 px-4 py-3">
-              <p className="text-[13.5px] leading-7 text-slate-600">
+              <p className="whitespace-pre-line text-[13.5px] leading-7 text-slate-600">
                 {interview?.jobDescription?.trim() ||
                   "No job description was provided for this interview."}
               </p>
