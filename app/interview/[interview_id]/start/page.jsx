@@ -599,7 +599,7 @@ function StartInterview() {
       <div className="max-w-4xl mx-auto w-full space-y-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-blue-600">
               {interviewInfo?.jobPosition || "AI"} Interview
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
