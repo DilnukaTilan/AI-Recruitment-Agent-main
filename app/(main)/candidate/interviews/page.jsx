@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Building2,
   Briefcase,
   Calendar,
   Loader2,
@@ -43,6 +44,7 @@ function parseFeedbackPayload(rawPayload) {
 function CandidateInterviewCard({ interview }) {
   const interviewTitle =
     interview?.jobPosition?.trim() || "Completed Interview";
+  const companyName = interview?.companyName?.trim() || "Company unavailable";
   const interviewSummary =
     interview?.summary?.trim() ||
     "Your interview has been completed successfully. You will be emailed by the recruiter with the next steps.";
@@ -73,17 +75,24 @@ function CandidateInterviewCard({ interview }) {
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)] transition-all duration-300 hover:-translate-y-1.5 hover:border-indigo-200/70 hover:shadow-[0_16px_40px_-8px_rgba(79,70,229,0.18)]">
       <div className="flex flex-1 flex-col gap-4 p-5">
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 transition-transform duration-300 group-hover:scale-105">
             <Briefcase className="h-5 w-5" />
           </div>
-          <div className="min-w-0 flex-1 pt-0.5">
+          <div className="min-w-0 flex-1">
             <h3
               className="truncate text-[15px] leading-snug font-semibold text-blue-600"
               title={interviewTitle}
             >
               {interviewTitle}
             </h3>
+            <p
+              className="mt-1 flex items-center gap-1 text-[12px] font-medium text-slate-600"
+              title={companyName}
+            >
+              <Building2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{companyName}</span>
+            </p>
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-400">
               <Calendar className="h-3 w-3" />
               Completed {formatDate(interview?.completed_at)}
@@ -193,6 +202,35 @@ function CandidateInterviewsPage() {
 
       if (interviewsError) throw interviewsError;
 
+      const recruiterEmails = Array.from(
+        new Set(
+          (interviews || [])
+            .map((interview) => interview?.userEmail)
+            .filter(Boolean),
+        ),
+      );
+
+      let recruitersByEmail = {};
+
+      if (recruiterEmails.length > 0) {
+        const { data: recruiters, error: recruitersError } = await supabase
+          .from("users")
+          .select("email, companyName")
+          .in("email", recruiterEmails);
+
+        if (recruitersError) throw recruitersError;
+
+        recruitersByEmail = (recruiters || []).reduce(
+          (accumulator, recruiter) => {
+            if (!recruiter?.email) return accumulator;
+
+            accumulator[recruiter.email] = recruiter;
+            return accumulator;
+          },
+          {},
+        );
+      }
+
       const interviewsById = (interviews || []).reduce(
         (accumulator, interview) => {
           if (!interview?.interview_id) return accumulator;
@@ -207,6 +245,9 @@ function CandidateInterviewsPage() {
         .map((interviewId) => {
           const result = latestResultByInterviewId[interviewId];
           const interview = interviewsById[interviewId] || {};
+          const recruiter = interview?.userEmail
+            ? recruitersByEmail[interview.userEmail]
+            : null;
           const feedback = parseFeedbackPayload(
             result?.conversation_transcript,
           );
@@ -217,6 +258,7 @@ function CandidateInterviewsPage() {
             type: interview?.type || "General",
             duration: interview?.duration || "Not specified",
             recruiterEmail: interview?.userEmail || null,
+            companyName: recruiter?.companyName || "",
             completed_at: result?.completed_at || null,
             recommendation:
               feedback?.recommendation ||
