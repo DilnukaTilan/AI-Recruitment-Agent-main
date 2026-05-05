@@ -21,6 +21,7 @@ function buildUserProfileMap(userRows = []) {
       email: normalizedUserEmail,
       name: userRecord?.name?.trim() || null,
       picture: userRecord?.picture || null,
+      cv: userRecord?.cv || null,
     };
 
     return accumulator;
@@ -70,6 +71,7 @@ function buildCandidateRows(interview, results, userProfilesByEmail) {
       maxJoins: candidate.maxJoins,
       name: getCandidateDisplayName(candidate.email, latestResult, userProfile),
       picture: userProfile?.picture || null,
+      cv: userProfile?.cv || null,
       status: completed ? "Completed" : "Pending",
       completedAt: latestResult?.completed_at || null,
       result: latestResult,
@@ -89,6 +91,7 @@ function buildCandidateRows(interview, results, userProfilesByEmail) {
       maxJoins: null,
       name: getCandidateDisplayName(email, result, userProfile),
       picture: userProfile?.picture || null,
+      cv: userProfile?.cv || null,
       status: "Completed",
       completedAt: result?.completed_at || null,
       result,
@@ -163,7 +166,7 @@ function ScheduledInterviewDetailsPage() {
       if (candidateEmails.length > 0) {
         const { data: userRecords, error: usersError } = await supabase
           .from("users")
-          .select("email, name, picture")
+          .select("email, name, picture, cv")
           .in("email", candidateEmails);
 
         if (usersError) {

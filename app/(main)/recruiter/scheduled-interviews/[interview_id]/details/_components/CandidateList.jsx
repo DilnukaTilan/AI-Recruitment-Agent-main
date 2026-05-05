@@ -1,8 +1,15 @@
 "use client";
 
+import { useState } from "react";
+import { Eye, FileText, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/services/supabaseClient";
 import CandidateFeedbackDialog from "./CandidateFeedbackDialog";
+
+const CV_BUCKET = "candidate-cvs";
 
 function formatDateTime(dateString) {
   if (!dateString) return "Not available";
@@ -30,7 +37,80 @@ function getInitials(name, email) {
   return source.slice(0, 2).toUpperCase();
 }
 
+function getStoragePath(cvValue) {
+  if (!cvValue) return null;
+
+  let path = cvValue.trim();
+
+  try {
+    const url = new URL(path);
+    const objectPath = url.pathname
+      .split(`/storage/v1/object/`)
+      .pop()
+      ?.replace(/^public\//, "")
+      ?.replace(/^sign\//, "");
+
+    if (objectPath) {
+      path = objectPath;
+    }
+  } catch {
+    // Stored value is already a path, not a URL.
+  }
+
+  path = decodeURIComponent(path);
+
+  if (path.startsWith(`${CV_BUCKET}/`)) {
+    path = path.slice(CV_BUCKET.length + 1);
+  }
+
+  return path.replace(/^\/+/, "");
+}
+
 function CandidateList({ candidates, interviewTitle }) {
+  const [viewingCvEmail, setViewingCvEmail] = useState(null);
+
+  const handleViewCv = async (candidate) => {
+    const storagePath = getStoragePath(candidate?.cv);
+
+    if (!storagePath) {
+      toast.error("This candidate has not uploaded a CV yet.");
+      return;
+    }
+
+    const previewWindow = window.open("", "_blank");
+
+    try {
+      setViewingCvEmail(candidate.email);
+
+      const { data, error } = await supabase.storage
+        .from(CV_BUCKET)
+        .createSignedUrl(storagePath, 300);
+
+      if (error || !data?.signedUrl) {
+        previewWindow?.close();
+        toast.error(
+          error?.message === "Object not found"
+            ? "The saved CV file was not found."
+            : "Failed to open the candidate CV.",
+        );
+        console.error("Candidate CV signed URL error:", error);
+        return;
+      }
+
+      if (previewWindow) {
+        previewWindow.location.href = data.signedUrl;
+      } else {
+        window.location.href = data.signedUrl;
+      }
+    } catch (error) {
+      previewWindow?.close();
+      toast.error("Something went wrong while opening the candidate CV.");
+      console.error("Unexpected candidate CV view error:", error);
+    } finally {
+      setViewingCvEmail(null);
+    }
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white shadow-[0_10px_35px_-20px_rgba(15,23,42,0.18)]">
       <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
@@ -99,7 +179,26 @@ function CandidateList({ candidates, interviewTitle }) {
                     </div>
                   </div>
 
-                  <div className="flex w-full shrink-0 items-center justify-center sm:w-auto sm:justify-end">
+                  <div className="flex w-full shrink-0 flex-col items-center justify-center gap-2 sm:w-auto sm:flex-row sm:justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleViewCv(candidate)}
+                      disabled={
+                        !candidate.cv || viewingCvEmail === candidate.email
+                      }
+                      className="w-full rounded-full border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:bg-slate-50 disabled:text-slate-400 sm:w-auto"
+                    >
+                      {viewingCvEmail === candidate.email ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : candidate.cv ? (
+                        <Eye className="h-3.5 w-3.5" />
+                      ) : (
+                        <FileText className="h-3.5 w-3.5" />
+                      )}
+                      {candidate.cv ? "View CV" : "No CV"}
+                    </Button>
+
                     {isCompleted ? (
                       <CandidateFeedbackDialog
                         candidate={candidate}
