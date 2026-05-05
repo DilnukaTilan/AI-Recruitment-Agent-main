@@ -134,8 +134,33 @@ function CandidateList({ candidates, interviewTitle }) {
               return (
                 <div
                   key={candidate.email}
-                  className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:text-left"
+                  className="relative flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:text-left"
                 >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleViewCv(candidate)}
+                    disabled={
+                      !candidate.cv || viewingCvEmail === candidate.email
+                    }
+                    className="absolute right-3 top-3 z-10 rounded-full border-slate-200 bg-white/95 text-slate-600 shadow-sm backdrop-blur hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 disabled:bg-slate-50 disabled:text-slate-400 sm:hidden"
+                    title={
+                      candidate.cv ? "View candidate CV" : "No CV uploaded"
+                    }
+                    aria-label={
+                      candidate.cv ? "View candidate CV" : "No CV uploaded"
+                    }
+                  >
+                    {viewingCvEmail === candidate.email ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : candidate.cv ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <FileText className="h-4 w-4" />
+                    )}
+                  </Button>
+
                   <div className="flex min-w-0 flex-1 flex-col items-center gap-3 sm:flex-row sm:items-center">
                     <Avatar className="h-12 w-12 shrink-0 rounded-full shadow-md shadow-blue-500/20 sm:h-11 sm:w-11">
                       {candidate.picture ? (
@@ -187,7 +212,7 @@ function CandidateList({ candidates, interviewTitle }) {
                       disabled={
                         !candidate.cv || viewingCvEmail === candidate.email
                       }
-                      className="w-full rounded-full border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:bg-slate-50 disabled:text-slate-400 sm:w-auto"
+                      className="hidden rounded-full border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:bg-slate-50 disabled:text-slate-400 sm:inline-flex"
                     >
                       {viewingCvEmail === candidate.email ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
