@@ -8,10 +8,7 @@ export default function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-6 p-6 md:p-12 bg-white dark:bg-slate-950">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a
-            href="http://localhost:3000/"
-            className="transition-transform hover:scale-105"
-          >
+          <a href="/" className="transition-transform hover:scale-105">
             <Image
               src={"/logo.png"}
               alt="logo"
