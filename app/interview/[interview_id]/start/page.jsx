@@ -22,6 +22,66 @@ import {
   isCandidateAllowedForInterview,
 } from "@/lib/interviewCandidates";
 
+const SILENCE_PROMPT_DELAY_MS = 12_000;
+const SILENCE_END_DELAY_MS = 30_000;
+const SILENCE_PROMPT_MESSAGE =
+  "Are you still there? Would you like me to repeat the question, or should we move on to the next question?";
+const SILENCE_END_MESSAGE =
+  "I still cannot hear a response, so I will end the interview here. Thank you for your time. I will submit the interview and generate feedback now.";
+const SILENCE_TRANSCRIPT_NOTE =
+  "[No verbal response detected after the interview question and follow-up prompt.]";
+
+const stringifyErrorValue = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (value instanceof Error) return value.message;
+  if (typeof value !== "object") return String(value);
+
+  const message = value.message || value.errorMsg || value.msg || value.type;
+
+  if (typeof message === "string") {
+    return message;
+  }
+
+  if (message) {
+    return stringifyErrorValue(message);
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+};
+
+const getReadableVapiErrorMessage = (error) => {
+  const message =
+    stringifyErrorValue(error?.error?.message) ||
+    stringifyErrorValue(error?.error?.errorMsg) ||
+    stringifyErrorValue(error?.message) ||
+    stringifyErrorValue(error?.msg) ||
+    stringifyErrorValue(error);
+
+  return message || "The interview connection encountered an error.";
+};
+
+const isExpectedCallShutdownError = (message) => {
+  return /meeting (has )?ended|ended due to ejection|ejection/i.test(message);
+};
+
+const isEmptyObject = (value) => {
+  return (
+    value &&
+    typeof value === "object" &&
+    !(value instanceof Error) &&
+    Object.keys(value).length === 0
+  );
+};
+
+const isEmptyVapiErrorPayload = (error) => {
+  return isEmptyObject(error) || isEmptyObject(error?.error);
+};
+
 function StartInterview() {
   const { interviewInfo, setInterviewInfo } = useContext(InterviewDataContext);
   const vapi = getVapiClient();
@@ -36,6 +96,11 @@ function StartInterview() {
   const endedReasonRef = useRef(null);
   const feedbackRequestedRef = useRef(false);
   const interviewInfoRef = useRef(interviewInfo);
+  const transcriptMessagesRef = useRef([]);
+  const silenceTimerRef = useRef(null);
+  const silenceFallbackTimerRef = useRef(null);
+  const silenceStageRef = useRef("idle");
+  const callActiveRef = useRef(false);
   const startedRef = useRef(false);
   const { interview_id } = useParams();
   const router = useRouter();
@@ -147,6 +212,10 @@ function StartInterview() {
   }, [interviewInfo]);
 
   useEffect(() => {
+    transcriptMessagesRef.current = transcriptMessages;
+  }, [transcriptMessages]);
+
+  useEffect(() => {
     if (
       accessChecked &&
       !accessDenied &&
@@ -184,10 +253,158 @@ function StartInterview() {
         return "The call ended because the maximum duration was reached.";
       case "customer-ended-call":
         return "The interview has ended.";
+      case "candidate-silent-timeout":
+        return "The interview ended because no response was detected after the follow-up prompt.";
       default:
         return `Call ended: ${formattedReason}.`;
     }
   }, []);
+
+  const clearSilenceTimers = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+
+    if (silenceFallbackTimerRef.current) {
+      clearTimeout(silenceFallbackTimerRef.current);
+      silenceFallbackTimerRef.current = null;
+    }
+  }, []);
+
+  const appendTranscriptMessage = useCallback((role, text) => {
+    const transcriptText = typeof text === "string" ? text.trim() : "";
+
+    if (!transcriptText) return;
+
+    if (role === "assistant") {
+      setSubtitles(transcriptText);
+    }
+
+    if (role === "user") {
+      setUserTranscript(transcriptText);
+    }
+
+    setTranscriptMessages((prevMessages) => {
+      const lastMessage = prevMessages[prevMessages.length - 1];
+
+      if (
+        lastMessage &&
+        lastMessage.role === role &&
+        lastMessage.text === transcriptText
+      ) {
+        return prevMessages;
+      }
+
+      const nextMessages = [
+        ...prevMessages,
+        {
+          id: `local-${Date.now()}-${role}-${prevMessages.length}`,
+          role,
+          text: transcriptText,
+          isFinal: true,
+        },
+      ];
+
+      transcriptMessagesRef.current = nextMessages;
+      return nextMessages;
+    });
+  }, []);
+
+  const resetSilenceTracking = useCallback(() => {
+    clearSilenceTimers();
+    silenceStageRef.current = "idle";
+  }, [clearSilenceTimers]);
+
+  const buildFallbackConversation = useCallback(() => {
+    const transcriptMessages = transcriptMessagesRef.current || [];
+    const fallbackMessages = transcriptMessages
+      .filter((message) => {
+        return (
+          (message?.role === "assistant" || message?.role === "user") &&
+          typeof message?.text === "string" &&
+          message.text.trim()
+        );
+      })
+      .map((message) => ({
+        role: message.role,
+        content: message.text.trim(),
+      }));
+
+    if (endedReasonRef.current === "candidate-silent-timeout") {
+      const hasSilenceNote = fallbackMessages.some(
+        (message) => message.content === SILENCE_TRANSCRIPT_NOTE,
+      );
+
+      if (!hasSilenceNote) {
+        fallbackMessages.push({
+          role: "user",
+          content: SILENCE_TRANSCRIPT_NOTE,
+        });
+      }
+    }
+
+    return fallbackMessages.length > 0
+      ? JSON.stringify(fallbackMessages, null, 2)
+      : null;
+  }, []);
+
+  const buildLocalFallbackRating = useCallback((interviewTypes) => {
+    const typeToCategory = {
+      Technical: "TechnicalSkills",
+      Behavioral: "Behavioral",
+      Experience: "Experience",
+      "Problem-Solving": "ProblemSolving",
+      Leadership: "Leadership",
+    };
+    const types = Array.isArray(interviewTypes)
+      ? interviewTypes
+      : typeof interviewTypes === "string"
+        ? interviewTypes.split(",")
+        : [];
+    const categories = types
+      .map((type) => type.trim())
+      .filter(Boolean)
+      .map((type) => typeToCategory[type] ?? type.replace(/\s+/g, ""));
+
+    return Object.fromEntries(
+      [...new Set([...categories, "Communication"])].map((category) => [
+        category,
+        0,
+      ]),
+    );
+  }, []);
+
+  const buildLocalFallbackFeedback = useCallback(
+    (reason, interviewTypes) => {
+      const rating = buildLocalFallbackRating(interviewTypes);
+
+      if (reason === "candidate-silent-timeout") {
+        return {
+          feedback: {
+            rating,
+            summary:
+              "The candidate did not provide a verbal response after the recruiter asked a question. The recruiter followed up to confirm whether the candidate was still present, but no response was detected. Because the interview could not continue, the session was concluded automatically.",
+            recommendation: "Not Recommended",
+            recommendationMessage:
+              "The candidate could not be evaluated because they remained silent after repeated prompts.",
+          },
+        };
+      }
+
+      return {
+        feedback: {
+          rating,
+          summary:
+            "The interview ended before enough response data was available for a full assessment. The available transcript was limited, so the system generated a conservative fallback report. Additional recruiter review may be needed before making a hiring decision.",
+          recommendation: "Not Recommended",
+          recommendationMessage:
+            "There was not enough interview evidence to recommend the candidate.",
+        },
+      };
+    },
+    [buildLocalFallbackRating],
+  );
 
   const startCall = async () => {
     if (!assistantId) {
@@ -215,11 +432,14 @@ function StartInterview() {
       },
     };
 
+    resetSilenceTracking();
     endedReasonRef.current = null;
     feedbackRequestedRef.current = false;
+    callActiveRef.current = false;
     setSubtitles("");
     setUserTranscript("");
     setTranscriptMessages([]);
+    transcriptMessagesRef.current = [];
 
     try {
       await vapi.start(
@@ -240,32 +460,41 @@ function StartInterview() {
 
   const generateFeedback = useCallback(async () => {
     const info = interviewInfoRef.current;
-    if (!info || !conversation.current) {
+    const fallbackConversation = buildFallbackConversation();
+    const conversationPayload =
+      endedReasonRef.current === "candidate-silent-timeout"
+        ? fallbackConversation || conversation.current
+        : conversation.current || fallbackConversation;
+
+    if (!info || !conversationPayload) {
       toast.error("Interview data is missing. Please restart the interview.");
       router.replace(`/interview/${interview_id}`);
       return;
     }
 
     try {
-      const result = await axios.post("/api/ai-feedback", {
-        conversation: conversation.current,
-        interviewTypes: info.type,
-      });
+      let parsedTranscript = null;
 
-      let content = result?.data?.content?.trim();
-      const jsonFenceMatch = content?.match(/```json\s*([\s\S]*?)\s*```/);
-      content = jsonFenceMatch
-        ? jsonFenceMatch[1].trim()
-        : content?.replace(/```/g, "").trim();
-
-      if (!content) throw new Error("Feedback content is empty");
-
-      let parsedTranscript;
       try {
+        const result = await axios.post("/api/ai-feedback", {
+          conversation: conversationPayload,
+          interviewTypes: info.type,
+        });
+
+        let content = result?.data?.content?.trim();
+        const jsonFenceMatch = content?.match(/```json\s*([\s\S]*?)\s*```/);
+        content = jsonFenceMatch
+          ? jsonFenceMatch[1].trim()
+          : content?.replace(/```/g, "").trim();
+
+        if (!content) throw new Error("Feedback content is empty");
         parsedTranscript = JSON.parse(content);
-      } catch {
-        console.error("Invalid JSON:", content);
-        throw new Error("Could not parse AI feedback JSON");
+      } catch (error) {
+        console.error("AI feedback response could not be used:", error);
+        parsedTranscript = buildLocalFallbackFeedback(
+          endedReasonRef.current,
+          info.type,
+        );
       }
 
       const { error: insertError } = await supabase
@@ -276,7 +505,8 @@ function StartInterview() {
             email: info.userEmail,
             interview_id,
             conversation_transcript: parsedTranscript,
-            recommendations: "Not recommended",
+            recommendations:
+              parsedTranscript?.feedback?.recommendation || "Not Recommended",
             completed_at: new Date().toISOString(),
           },
         ]);
@@ -326,10 +556,127 @@ function StartInterview() {
     } finally {
       setIsGeneratingFeedback(false);
     }
-  }, [interview_id, router]);
+  }, [
+    buildFallbackConversation,
+    buildLocalFallbackFeedback,
+    interview_id,
+    router,
+  ]);
 
   useEffect(() => {
     if (!vapi) return;
+
+    const requestFeedbackOnce = () => {
+      if (feedbackRequestedRef.current) {
+        return;
+      }
+
+      feedbackRequestedRef.current = true;
+      setIsGeneratingFeedback(true);
+      generateFeedback();
+    };
+
+    const concludeSilentInterview = () => {
+      if (!callActiveRef.current || feedbackRequestedRef.current) {
+        return;
+      }
+
+      clearSilenceTimers();
+      silenceStageRef.current = "ending";
+      endedReasonRef.current = "candidate-silent-timeout";
+      appendTranscriptMessage("assistant", SILENCE_END_MESSAGE);
+
+      if (typeof vapi.say === "function") {
+        vapi.say(SILENCE_END_MESSAGE, true, false, true);
+
+        silenceFallbackTimerRef.current = setTimeout(() => {
+          if (!feedbackRequestedRef.current) {
+            if (typeof vapi.stop === "function") {
+              vapi.stop();
+            }
+
+            callActiveRef.current = false;
+            requestFeedbackOnce();
+          }
+        }, 12_000);
+
+        return;
+      }
+
+      if (typeof vapi.end === "function") {
+        vapi.end();
+      } else if (typeof vapi.stop === "function") {
+        vapi.stop();
+      }
+
+      callActiveRef.current = false;
+      requestFeedbackOnce();
+    };
+
+    const scheduleSilentInterviewEnd = (delayMs = SILENCE_END_DELAY_MS) => {
+      if (!callActiveRef.current || feedbackRequestedRef.current) {
+        return;
+      }
+
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+
+      silenceTimerRef.current = setTimeout(() => {
+        if (
+          callActiveRef.current &&
+          !feedbackRequestedRef.current &&
+          (silenceStageRef.current === "prompting" ||
+            silenceStageRef.current === "prompted")
+        ) {
+          concludeSilentInterview();
+        }
+      }, delayMs);
+    };
+
+    const promptForSilence = () => {
+      if (
+        !callActiveRef.current ||
+        feedbackRequestedRef.current ||
+        silenceStageRef.current !== "waiting-for-response"
+      ) {
+        return;
+      }
+
+      silenceStageRef.current = "prompting";
+      appendTranscriptMessage("assistant", SILENCE_PROMPT_MESSAGE);
+
+      if (typeof vapi.say === "function") {
+        vapi.say(SILENCE_PROMPT_MESSAGE, false, true, true);
+        scheduleSilentInterviewEnd(SILENCE_END_DELAY_MS + 5_000);
+      } else {
+        silenceStageRef.current = "prompted";
+        scheduleSilentInterviewEnd();
+      }
+    };
+
+    const scheduleSilencePrompt = () => {
+      if (!callActiveRef.current || feedbackRequestedRef.current) {
+        return;
+      }
+
+      clearSilenceTimers();
+      silenceStageRef.current = "waiting-for-response";
+      silenceTimerRef.current = setTimeout(
+        promptForSilence,
+        SILENCE_PROMPT_DELAY_MS,
+      );
+    };
+
+    const markCandidateResponded = () => {
+      if (
+        silenceStageRef.current === "waiting-for-response" ||
+        silenceStageRef.current === "prompting" ||
+        silenceStageRef.current === "prompted"
+      ) {
+        resetSilenceTracking();
+      }
+    };
 
     const handleMessage = (message) => {
       if (
@@ -362,6 +709,7 @@ function StartInterview() {
         }
 
         if (transcriptRole === "user") {
+          markCandidateResponded();
           setUserTranscript(transcriptText);
         }
 
@@ -377,11 +725,14 @@ function StartInterview() {
               return prevMessages;
             }
 
-            return prevMessages.map((item, index) =>
+            const nextMessages = prevMessages.map((item, index) =>
               index === prevMessages.length - 1
                 ? { ...item, isFinal: isFinalTranscript }
                 : item,
             );
+
+            transcriptMessagesRef.current = nextMessages;
+            return nextMessages;
           }
 
           if (
@@ -389,7 +740,7 @@ function StartInterview() {
             lastMessage.role === transcriptRole &&
             !lastMessage.isFinal
           ) {
-            return prevMessages.map((item, index) =>
+            const nextMessages = prevMessages.map((item, index) =>
               index === prevMessages.length - 1
                 ? {
                     ...item,
@@ -398,9 +749,12 @@ function StartInterview() {
                   }
                 : item,
             );
+
+            transcriptMessagesRef.current = nextMessages;
+            return nextMessages;
           }
 
-          return [
+          const nextMessages = [
             ...prevMessages,
             {
               id: `${Date.now()}-${transcriptRole}-${prevMessages.length}`,
@@ -409,6 +763,9 @@ function StartInterview() {
               isFinal: isFinalTranscript,
             },
           ];
+
+          transcriptMessagesRef.current = nextMessages;
+          return nextMessages;
         });
       }
 
@@ -416,6 +773,18 @@ function StartInterview() {
         const filteredConversation =
           message.conversation.filter((msg) => msg.role !== "system") || [];
         conversation.current = JSON.stringify(filteredConversation, null, 2);
+
+        if (
+          filteredConversation.some((msg) => {
+            return (
+              msg?.role === "user" &&
+              typeof msg?.content === "string" &&
+              msg.content.trim()
+            );
+          })
+        ) {
+          markCandidateResponded();
+        }
 
         const conversationTranscript = filteredConversation
           .map((msg, index) => {
@@ -438,17 +807,23 @@ function StartInterview() {
           .filter(Boolean);
 
         if (conversationTranscript.length > 0) {
+          transcriptMessagesRef.current = conversationTranscript;
           setTranscriptMessages(conversationTranscript);
         }
       }
     };
 
     const handleCallStart = () => {
+      callActiveRef.current = true;
+      silenceStageRef.current = "idle";
       toast("The call has started...");
       setStart(true);
     };
 
     const handleSpeechStart = () => {
+      if (silenceStageRef.current === "waiting-for-response") {
+        resetSilenceTracking();
+      }
       setIsSpeaking(true);
       setActiveUser(false);
       toast("AI is speaking...");
@@ -457,23 +832,51 @@ function StartInterview() {
     const handleSpeechEnd = () => {
       setIsSpeaking(false);
       setActiveUser(true);
+
+      if (!callActiveRef.current || feedbackRequestedRef.current) {
+        return;
+      }
+
+      if (silenceStageRef.current === "prompting") {
+        silenceStageRef.current = "prompted";
+        scheduleSilentInterviewEnd();
+        return;
+      }
+
+      if (
+        silenceStageRef.current !== "prompted" &&
+        silenceStageRef.current !== "ending"
+      ) {
+        scheduleSilencePrompt();
+      }
     };
 
     const handleError = (error) => {
+      const errorMessage = getReadableVapiErrorMessage(error);
+      const isIntentionalShutdown =
+        endedReasonRef.current === "candidate-silent-timeout" ||
+        silenceStageRef.current === "ending" ||
+        feedbackRequestedRef.current;
+
+      if (
+        isIntentionalShutdown &&
+        (isExpectedCallShutdownError(errorMessage) ||
+          isEmptyVapiErrorPayload(error))
+      ) {
+        return;
+      }
+
       console.error("Vapi error:", error);
-      const errorMessage =
-        error?.error?.message ||
-        error?.error?.errorMsg ||
-        error?.message ||
-        "The interview connection encountered an error.";
       toast.error(errorMessage);
     };
 
     const handleCallEnd = () => {
+      callActiveRef.current = false;
+      clearSilenceTimers();
       const endedReason = endedReasonRef.current;
       const endMessage = getEndToastMessage(endedReason);
 
-      if (!conversation.current) {
+      if (!conversation.current && !buildFallbackConversation()) {
         toast.error(
           endMessage || "The call ended before a transcript could be captured.",
         );
@@ -506,6 +909,7 @@ function StartInterview() {
     vapi.on("error", handleError);
 
     return () => {
+      clearSilenceTimers();
       vapi.off("message", handleMessage);
       vapi.off("call-start", handleCallStart);
       vapi.off("speech-start", handleSpeechStart);
@@ -513,7 +917,17 @@ function StartInterview() {
       vapi.off("call-end", handleCallEnd);
       vapi.off("error", handleError);
     };
-  }, [interview_id, router, vapi, getEndToastMessage, generateFeedback]);
+  }, [
+    appendTranscriptMessage,
+    buildFallbackConversation,
+    clearSilenceTimers,
+    generateFeedback,
+    getEndToastMessage,
+    interview_id,
+    resetSilenceTracking,
+    router,
+    vapi,
+  ]);
 
   if (!accessChecked) {
     return (
@@ -542,6 +956,7 @@ function StartInterview() {
   }
 
   const stopInterview = () => {
+    resetSilenceTracking();
     endedReasonRef.current = "customer-ended-call";
     if (!vapi) {
       toast.error("Interview connection is unavailable.");

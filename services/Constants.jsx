@@ -145,6 +145,7 @@ Based on the above interview conversation between the assistant and the user, pr
 1. Rate the candidate on a scale of 0 to 10 ONLY for the following assessed categories: {{categories}}
 2. Write a concise summary of the interview in exactly 3 sentences.
 3. Provide a hire recommendation using ONLY one of these exact values: "Strongly Recommended", "Recommended", or "Not Recommended". Be very strict in your assessment. Include a one-line justification for your recommendation.
+4. If the candidate stayed silent, gave no substantive answer, or the transcript contains a no-response note, assign very low scores and use "Not Recommended".
 
 **Response Format:**
 Return ONLY a valid JSON object in the following format (no additional text or markdown):
