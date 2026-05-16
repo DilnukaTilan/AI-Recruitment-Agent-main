@@ -82,6 +82,22 @@ const isEmptyVapiErrorPayload = (error) => {
   return isEmptyObject(error) || isEmptyObject(error?.error);
 };
 
+const getLatestUserResponseSignature = (messages = []) => {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    const text =
+      message?.role === "user" && typeof message?.content === "string"
+        ? message.content.trim()
+        : "";
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return "";
+};
+
 function StartInterview() {
   const { interviewInfo, setInterviewInfo } = useContext(InterviewDataContext);
   const vapi = getVapiClient();
@@ -97,6 +113,7 @@ function StartInterview() {
   const feedbackRequestedRef = useRef(false);
   const interviewInfoRef = useRef(interviewInfo);
   const transcriptMessagesRef = useRef([]);
+  const latestUserResponseSignatureRef = useRef("");
   const silenceTimerRef = useRef(null);
   const silenceFallbackTimerRef = useRef(null);
   const silenceStageRef = useRef("idle");
@@ -440,6 +457,7 @@ function StartInterview() {
     setUserTranscript("");
     setTranscriptMessages([]);
     transcriptMessagesRef.current = [];
+    latestUserResponseSignatureRef.current = "";
 
     try {
       await vapi.start(
@@ -709,6 +727,7 @@ function StartInterview() {
         }
 
         if (transcriptRole === "user") {
+          latestUserResponseSignatureRef.current = transcriptText;
           markCandidateResponded();
           setUserTranscript(transcriptText);
         }
@@ -774,15 +793,14 @@ function StartInterview() {
           message.conversation.filter((msg) => msg.role !== "system") || [];
         conversation.current = JSON.stringify(filteredConversation, null, 2);
 
+        const latestUserResponseSignature =
+          getLatestUserResponseSignature(filteredConversation);
+
         if (
-          filteredConversation.some((msg) => {
-            return (
-              msg?.role === "user" &&
-              typeof msg?.content === "string" &&
-              msg.content.trim()
-            );
-          })
+          latestUserResponseSignature &&
+          latestUserResponseSignature !== latestUserResponseSignatureRef.current
         ) {
+          latestUserResponseSignatureRef.current = latestUserResponseSignature;
           markCandidateResponded();
         }
 
