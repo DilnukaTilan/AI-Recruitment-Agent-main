@@ -38,7 +38,10 @@ export function AppSidebar() {
     : "RC";
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
+    <Sidebar
+      collapsible="icon"
+      className="border-r-0 **:data-[slot=sidebar-inner]:bg-linear-to-b **:data-[slot=sidebar-inner]:from-indigo-100 **:data-[slot=sidebar-inner]:to-white"
+    >
       <SidebarHeader className="flex items-center justify-center px-3 py-2.5">
         <span className="group-data-[collapsible=icon]:hidden">
           <Image
@@ -92,7 +95,7 @@ export function AppSidebar() {
                       ${
                         isActive
                           ? "bg-primary/10 text-primary font-semibold shadow-sm group-data-[collapsible=icon]:shadow-none"
-                          : "text-muted-foreground hover:bg-border/30 hover:text-foreground"
+                          : "text-muted-foreground hover:bg-border/50 hover:text-foreground"
                       }
                     `}
                   >

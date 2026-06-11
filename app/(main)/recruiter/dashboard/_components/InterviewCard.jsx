@@ -286,7 +286,7 @@ function InterviewCard({ interview, onDelete }) {
             value={responseCount}
             label="Responses"
             iconColor="text-indigo-500"
-            bgFrom="from-indigo-50"
+            bgFrom="from-indigo-100"
             bgTo="to-white"
           />
           <StatPill
@@ -294,7 +294,7 @@ function InterviewCard({ interview, onDelete }) {
             value={questionCount || "—"}
             label="Questions"
             iconColor="text-violet-500"
-            bgFrom="from-violet-50"
+            bgFrom="from-violet-100"
             bgTo="to-white"
           />
         </div>
