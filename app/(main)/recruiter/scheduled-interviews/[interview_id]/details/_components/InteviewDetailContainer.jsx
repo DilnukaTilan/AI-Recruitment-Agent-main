@@ -101,7 +101,7 @@ function InteviewDetailContainer({ interview, summary }) {
   return (
     <section className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_20px_60px_-20px_rgba(15,23,42,0.12)]">
       <div className="relative overflow-hidden border-b border-slate-100">
-        <div className="absolute inset-0 bg-linear-to-br from-blue-50 via-indigo-50/50 to-violet-50" />
+        <div className="absolute inset-0 bg-linear-to-br from-indigo-100 to-white" />
         <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-blue-400/8 blur-3xl" />
         <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-indigo-400/8 blur-3xl" />
         <div className="absolute right-1/3 top-0 h-px w-40 bg-linear-to-r from-transparent via-blue-300/40 to-transparent" />
